@@ -20,14 +20,17 @@ public class DatabaseConnect {
     }
 
     private static OracleConnection connection;
-    private static final String username = "\"23097455d\"";
-    private static final String passwd = "fugh041227";
+    private static String username;
+    private static String passwd;
     private static final String url = "jdbc:oracle:thin:@40.79.43.65:1521:dbms";
 
     public static DatabaseConnect getDatabase(){ return database; }
 
     private void connect() throws SQLException {
         try {
+            System.out.println("Enter username and password:");
+            username = Main.sc.nextLine();
+            passwd = Main.sc.nextLine();
             DriverManager.registerDriver(new OracleDriver());
             connection = (OracleConnection) DriverManager.getConnection(url, username, passwd);
             System.out.println("Connection success");
