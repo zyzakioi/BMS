@@ -11,11 +11,11 @@ public class EmailValidator implements Validator {
      */
     @Override
     public boolean eval(String str) {
-        return str.matches("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$") && str.length() <= 20;
+        return str.matches("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$") && str.length() <= 100;
     }
 
     @Override
     public String reason() {
-        return "Email must contain only alphanumeric characters, @, ., +, _, -, with maximum length of 20";
+        return "Email must contain only alphanumeric characters, @, ., +, _, -, with maximum length of 100";
     }
 }

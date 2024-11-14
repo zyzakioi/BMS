@@ -25,7 +25,7 @@ public class DBConnect {
             connection = (SQLiteConnection) DriverManager.getConnection(url);
             System.out.println("Connected.");
         } catch (SQLException e) {
-            View.displayError("database connection failed to establish");
+            View.displayError("Database connection failed to establish");
             throw new RuntimeException(e);
         }
     }
@@ -35,7 +35,7 @@ public class DBConnect {
             connection.close();
             System.out.println("Connection closed");
         } catch (SQLException e) {
-            View.displayError("database connection failed to close");
+            View.displayError("Database connection failed to close");
             throw e;
         }
     }
@@ -50,7 +50,7 @@ public class DBConnect {
             }
             pstmt.execute();
         } catch (SQLException e) {
-            View.displayError("failed to execute: " + sql);
+            View.displayError("Failed to execute: " + sql);
             throw e;
         }
     }
@@ -66,7 +66,7 @@ public class DBConnect {
             crs.populate(pstmt.executeQuery());
             return crs;
         } catch (SQLException e) {
-            View.displayError("failed to execute: " + sql);
+            View.displayError("Failed to execute: " + sql);
             throw e;
         }
     }

@@ -18,10 +18,10 @@ public enum RegistryAttr implements Attr {
             MealAttr.MEAL_ID.getDescription(),
             MealAttr.MEAL_ID.getValidator()
     ),
-    DRINK("Drink", "drink", new NameValidator()),
-    SEAT("Seat", "seat number", new SeatValidator()),
-    ATTENDANCE("Attendance", "attendance", new BoolValidator()), // NUMBER(1)
-    REMARKS("Remarks", "remarks", new RemarksValidator());
+    DRINK("Drink", "Drink", new NameValidator()),
+    SEAT("Seat", "Seat number", new SeatValidator()),
+    ATTENDANCE("Attendance", "Attendance", new BoolValidator()), // NUMBER(1)
+    REMARKS("Remarks", "Remarks", new RemarksValidator());
 
     private final String attrName;
     private final String description; // user friendly description

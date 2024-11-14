@@ -28,7 +28,7 @@ public class Attendee implements User {
         Attr ID = AttendeeAttr.ATTENDEE_ID;
         Attr PW = AttendeeAttr.PASSWORD;
         if (User.auth(ID, PW, new String(email), passwd)) menu.start();
-        else View.displayError("email or password incorrect");
+        else View.displayError("Email or password incorrect");
     }
 
     @Override
@@ -53,12 +53,12 @@ class AttendeeMainMenu implements Menu {
         String options = """
                 1. Update Personal Info
                 2. Show Available Banquets
-                3. Sign Up Banquet
+                3. Register a Banquet
                 0. Logout
                 """;
         boolean isRunning = true;
         while (isRunning) {
-            View.displayOptions("action", options);
+            View.displayOptions("Action", options);
             int op = getDigit("");
             switch (op) {
                 case 1 -> menu1.start();
@@ -95,8 +95,8 @@ class UpdateInfo implements Menu {
         AttendeeAttr[] attrs = AttendeeAttr.values();
 
         while (true) {
-            View.displayOptions("info to update", options);
-            int op = getDigit("action");
+            View.displayOptions("Info to update", options);
+            int op = getDigit("Action");
             switch (op) {
                 case 0 -> { return; }
                 case 1 -> updateId(email);
@@ -118,7 +118,7 @@ class UpdateInfo implements Menu {
     }
 
     private void updatePw(String Id) throws SQLException {
-        char[] newPw = getPasswd("new password");
+        char[] newPw = getPasswd("New password");
         String condition = AttendeeAttr.ATTENDEE_ID.getAttrName() + " = " + Id;
         String hashPw = SecurityUtils.toHash(newPw);
         AttendeeAttr.ATTENDEE_ID.updateTo(hashPw, condition);
@@ -143,7 +143,7 @@ class SignUp implements Menu {
             String conditionClause = RegistryAttr.BANQUET_ID + " = ? AND " + RegistryAttr.MEAL_ID + " = ?";
             try (ResultSet rs = Tables.REGISTRY.query(columns, conditionClause, conditionVals)) {
                 if (rs.next()) break;
-                View.displayError("meal not available in banquet");
+                View.displayError("Meal not available in this banquet");
             }
         }
         RegistryAttr[] otherAttrs = new RegistryAttr[]{RegistryAttr.DRINK, RegistryAttr.SEAT, RegistryAttr.REMARKS};
@@ -151,8 +151,12 @@ class SignUp implements Menu {
         String[] vals = new String[]{email, banquetID, mealID, otherVals[0], otherVals[1], "0", otherVals[2]};
         try {
             Tables.REGISTRY.insert(vals);
+            BanquetAttr.QUOTA.updateTo("Quota - 1", BanquetAttr.BANQUET_ID.getAttrName() + " = " + banquetID);
+            ResultSet rs = Tables.BANQUET.query(new String[]{"Quota"}, BanquetAttr.BANQUET_ID.getAttrName() + " = ?", new String[]{banquetID});
+            rs.next();
+            if (rs.getInt(1) == 0) BanquetAttr.AVAILABILITY.updateTo("0", BanquetAttr.BANQUET_ID.getAttrName() + " = " + banquetID);
         } catch (BMSException e) {
-            View.displayError("already signed up to this banquet");
+            View.displayError("Already registered to this banquet");
         }
     }
 }
@@ -166,7 +170,7 @@ class ShowBanquets implements Menu {
 
     @Override
     public void start() throws SQLException {
-        String[] header = Attr.getColumns(BanquetAttr.values());
+        String[] header = {"BIN","Name"};
         ArrayList<String[]> rows = new ArrayList<>();
         int colNum = header.length;
 
@@ -182,7 +186,7 @@ class ShowBanquets implements Menu {
                 rows.add(row);
             }
             if (rows.isEmpty())
-                View.displayMessage("no banquets available");
+                View.displayMessage("No banquets available");
             else View.displayTable(header, rows);
         }
 

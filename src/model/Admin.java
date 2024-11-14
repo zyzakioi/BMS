@@ -29,7 +29,7 @@ public class Admin implements User {
         Attr ID = AdminAttr.ADMIN_ID;
         Attr PW = AdminAttr.PASSWORD;
         if (User.auth(ID, PW, new String(email), passwd)) menu.start();
-        else View.displayError("email or password incorrect");
+        else View.displayError("Email or password incorrect");
     }
 
     /**
@@ -59,15 +59,15 @@ class AdminMainMenu implements Menu {
                 0. Logout
                 """;
         while (true) {
-            View.displayOptions("action", options);
-            int op = getDigit("action");
+            View.displayOptions("Action", options);
+            int op = getDigit("Action");
             switch (op) {
                 case 1 -> menu1.start();
                 case 2 -> menu2.start();
                 case 3 -> menu3.start();
                 case 4 -> menu4.start();
                 case 0 -> { return; }
-                default -> View.displayBadInput("single digit 1~6", op);
+                default -> View.displayBadInput("Single digit 1~6", op);
             }
         }
     }
@@ -87,8 +87,8 @@ class AdminEditBanquet implements Menu {
 
         boolean isRunning = true;
         while (isRunning) {
-            View.displayOptions("action", options);
-            int op = getDigit("action");
+            View.displayOptions("Action", options);
+            int op = getDigit("Action");
             try {
                 switch (op) {
                     case 1 -> updateBanquet(banquetID);
@@ -120,8 +120,8 @@ class AdminEditBanquet implements Menu {
         // attrs[0] is BANQUET_ID, which is not updatable. Safely ignored in the following code.
 
         while (true) {
-            View.displayOptions("action", options);
-            int op = getDigit("action");
+            View.displayOptions("Action", options);
+            int op = getDigit("Action");
             if (op == 0) return;
             if (1 <= op && op <= 9) {
                 String val = attrs[op].inputNewVal();
@@ -169,15 +169,15 @@ class AdminMenuAttendee implements Menu {
                 """;
 
         while (true) {
-            View.displayOptions("action", options);
-            int op = getDigit("action");
+            View.displayOptions("Action", options);
+            int op = getDigit("Action");
             try {
                 switch (op) {
                     case 0 -> { return;}
                     case 1 -> updateAttendee(banquetID);
                     case 2 -> unregisterAttendee(banquetID);
                     case 3 -> viewAttendees();
-                    default -> View.displayBadInput("single digit 1~3", op);
+                    default -> View.displayBadInput("Single digit 1~3", op);
                 }
             } catch (BMSException e) {
                 View.displayError(e.getMessage());
@@ -204,8 +204,18 @@ class AdminMenuAttendee implements Menu {
                 RegistryAttr.BANQUET_ID, banquetID,
                 RegistryAttr.ATTENDEE_ID, attendeeID
         );
+        ResultSet rs = db.executeQuery("SELECT COUNT(*) FROM Registration WHERE " + conditions);
+        rs.next();
+        if (rs.getInt(1) == 0) {
+            View.displayError("Attendee ID \"" + attendeeID + "\" is not registered");
+            return;
+        }
         Tables.REGISTRY.delete(conditions);
         View.displayMessage("Attendee ID \"" + attendeeID + "\" has been unregistered");
+        BanquetAttr.QUOTA.updateTo("Quota + 1", BanquetAttr.BANQUET_ID + " = " + banquetID);
+        rs = Tables.BANQUET.query(new String[]{BanquetAttr.QUOTA.getAttrName()}, BanquetAttr.BANQUET_ID + " = ?", new String[]{banquetID});
+        rs.next();
+        if(rs.getInt(1) > 0) BanquetAttr.AVAILABILITY.updateTo("1", BanquetAttr.BANQUET_ID + " = " + banquetID);
     }
 
     private static void viewAttendees() throws SQLException{
@@ -222,7 +232,7 @@ class AdminMenuAttendee implements Menu {
             }
         }
 
-        if (rows.isEmpty()) View.displayMessage("no attendee available");
+        if (rows.isEmpty()) View.displayMessage("No attendee available");
         else View.displayTable(columns, rows);
     }
 }
@@ -264,7 +274,7 @@ class AdminViewBanquet implements Menu {
                 rows.add(row);
             }
             if (rows.isEmpty())
-                View.displayMessage("no banquets");
+                View.displayMessage("No banquets");
             else View.displayTable(header, rows);
         }
     }

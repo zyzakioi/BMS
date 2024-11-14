@@ -13,10 +13,10 @@ public enum MealAttr implements Attr{
             BanquetAttr.BANQUET_ID.getDescription(),
             BanquetAttr.BANQUET_ID.getValidator()
     ),
-    MEAL_ID("Dish_name", "dish name", new NameValidator()),
-    CUISINE("Cuisine", "cuisine name", new NameValidator()),
-    PRICE("Price", "price", new IntValidator()),
-    TYPE("Type", "type name", new NameValidator()),;
+    MEAL_ID("Dish_name", "Dish name", new NameValidator()),
+    CUISINE("Cuisine", "Cuisine", new NameValidator()),
+    PRICE("Price", "Price", new IntValidator()),
+    TYPE("Type", "Type", new NameValidator()),;
 
     private final String attrName;
     public final String description; // user friendly description

@@ -13,6 +13,6 @@ public class IntValidator implements Validator {
 
     @Override
     public String reason() {
-        return "must be an integer";
+        return "Must be an integer";
     }
 }

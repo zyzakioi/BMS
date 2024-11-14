@@ -68,7 +68,7 @@ public enum Tables {
      * @throws BMSException when the vals tuple already exist (violating uniqueness constraint)
      */
     public void insert(String... vals) throws SQLException, BMSException {
-        if (hasEntry(vals)) throw new BMSException("entry already exists");
+        if (hasEntry(vals)) throw new BMSException("Entry already exists");
         StringBuilder sql = new StringBuilder("INSERT INTO ");
         sql.append(tableName).append(" VALUES (");
         for (int i = 0; i < vals.length; i++) {

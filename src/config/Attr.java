@@ -26,7 +26,7 @@ public interface Attr {
      * @throws SQLException when unexpected SQL error occurs
      */
     default void updateTo(String newVal, String conditions) throws SQLException {
-        if (!isUpdatable()) throw new RuntimeException("attribute " + getAttrName() + " not updatable");
+        if (!isUpdatable()) throw new RuntimeException("Attribute " + getAttrName() + " not updatable");
         String sql = "UPDATE " + getTable() + " SET " + getAttrName() + " = ?";
         if (!conditions.isEmpty()) sql += " WHERE " + conditions;
         db.executeUpdate(sql, new String[]{newVal});
@@ -101,8 +101,8 @@ public interface Attr {
         for (int i = 0; i < attrs.length; i++) {
             switch (attrs[i]) {
                 case BanquetAttr.BANQUET_ID -> res[i] = (++Controller.banquetNum) + "";
-                case RegistryAttr.BANQUET_ID -> throw new RuntimeException("cannot generate BIN in Registry context");
-                case MealAttr.BANQUET_ID -> throw new RuntimeException("cannot generate BIN in Meal context");
+                case RegistryAttr.BANQUET_ID -> throw new RuntimeException("Cannot generate BIN in Registry context");
+                case MealAttr.BANQUET_ID -> throw new RuntimeException("Cannot generate BIN in Meal context");
                 default -> res[i] = attrs[i].inputNewVal();
             }
         }
@@ -120,13 +120,13 @@ public interface Attr {
      */
     static Attr inputValidAttr(Scanner sc, Attr[] attrs) {
         while (true) {
-            View.displayPrompt("attribute to update");
+            View.displayPrompt("Attribute to update");
             String strAttr = sc.nextLine().trim();
             for (Attr attr : attrs) {
                 if (attr.getAttrName().equalsIgnoreCase(strAttr))
                     return attr;
             }
-            View.displayError("attribute does not exist");
+            View.displayError("Attribute does not exist");
         }
     }
 

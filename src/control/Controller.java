@@ -34,7 +34,7 @@ public class Controller {
         bN.next();
         banquetNum = bN.getInt(1);
         while (isRunning) {
-            View.displayOptions("account type", options);
+            View.displayOptions("Account Type", options);
             int op = getDigit("");
             switch (op) {
                 case 1 -> initAttendee();
@@ -51,8 +51,8 @@ public class Controller {
 
     private void initAttendee() throws SQLException{
         while (true) {
-            String email = getStr("[Attendee] email");
-            char[] password = getPasswd("[Attendee] password");
+            String email = getStr("[Attendee] Email");
+            char[] password = getPasswd("[Attendee] Password");
             try (Attendee attendeeSession = new Attendee(email, password)) {
                 attendeeSession.login();
                 break;
@@ -64,8 +64,8 @@ public class Controller {
 
     private void initAdmin() throws SQLException{
         while (true) {
-            String email = getStr("[Admin] email");
-            char[] password = getPasswd("[Admin] password");
+            String email = getStr("[Admin] Email");
+            char[] password = getPasswd("[Admin] Password");
             try (Admin adminSession = new Admin(email, password)) {
                 adminSession.login();
                 break;
@@ -79,7 +79,7 @@ public class Controller {
         Attr ID = AttendeeAttr.ATTENDEE_ID;
         String[] finalVals = new String[8];
         finalVals[0] = ID.inputNewVal();
-        char[] rawPasswd = getPasswd("password");
+        char[] rawPasswd = getPasswd("Password");
         finalVals[1] = SecurityUtils.toHash(rawPasswd);
         Attr[] infos = Arrays.copyOfRange(AttendeeAttr.values(), 2, 8);
         String[] infoVals = Attr.inputNewVals(infos);
@@ -87,7 +87,7 @@ public class Controller {
 
         try {
             Tables.ATTENDEE.insert(finalVals);
-            View.displayMessage("registration successful");
+            View.displayMessage("Registration Successful");
         } catch (BMSException e) {
             View.displayError(e.getMessage());
             return;

@@ -3,14 +3,14 @@ package config;
 import utils.validator.*;
 
 public enum AttendeeAttr implements Attr{
-    ATTENDEE_ID("Account_ID", "email", new EmailValidator()),
-    PASSWORD("Password", "password", null),
-    FIRST_NAME("First_name", "first name", new NameValidator()),
-    LAST_NAME("Last_name", "last name", new NameValidator()),
-    ORGANIZATION("Organization", "organization", new OrganizationValidator()),
-    ATTENDEE_TYPE("Attendee_type", "account type", new AccountTypeValidator()),
-    ADDRESS("Address", "address", new AddressValidator()),
-    PHONE("Mobile_num", "phone number", new PhoneValidator());
+    ATTENDEE_ID("Account_ID", "Email", new EmailValidator()),
+    PASSWORD("Password", "Password", null),
+    FIRST_NAME("First_name", "First name", new NameValidator()),
+    LAST_NAME("Last_name", "Last name", new NameValidator()),
+    ORGANIZATION("Organization", "Organization", new OrganizationValidator()),
+    ATTENDEE_TYPE("Attendee_type", "Account type", new AccountTypeValidator()),
+    ADDRESS("Address", "Address", new AddressValidator()),
+    PHONE("Mobile_num", "Phone number", new PhoneValidator());
 
     private final String attrName;
     private final String description; // user friendly description

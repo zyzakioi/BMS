@@ -7,7 +7,7 @@ import java.time.format.DateTimeParseException;
 public class DateValidator implements Validator {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
     private static final LocalDate LOWER_BOUND = LocalDate.of(2024, 1, 1);
-    private static final LocalDate UPPER_BOUND = LocalDate.of(2027, 1, 1);
+    private static final LocalDate UPPER_BOUND = LocalDate.of(9999, 12, 31);
 
     /**
      * The date is valid only if the following conditions are met:
@@ -31,6 +31,6 @@ public class DateValidator implements Validator {
 
     @Override
     public String reason() {
-        return "Date must be in the format of yyyy-MM-dd, between 2024-01-01 and before 2027-01-01";
+        return "Date must be in the format of yyyy-MM-dd, between 2024-01-01 and before 9999-12-31";
     }
 }

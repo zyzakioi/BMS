@@ -22,7 +22,7 @@ public class InputUtils {
             View.displayPrompt(message);
             String strOp = sc.nextLine().trim();
             if (strOp.length() != 1 || !Character.isDigit(strOp.charAt(0))) {
-                View.displayBadInput("single digit", strOp);
+                View.displayBadInput("Single digit", strOp);
                 continue;
             }
             return Integer.parseInt(strOp);

@@ -13,7 +13,7 @@ public class AccountTypeValidator implements Validator {
     @Override
     public boolean eval(String str) {
         str = str.toLowerCase();
-        return str.equals("student") || str.equals("staff") || str.equals("alumni") || str.equals("guest");
+        return str.equals("Student") || str.equals("Staff") || str.equals("Alumni") || str.equals("Guest");
     }
 
     @Override
