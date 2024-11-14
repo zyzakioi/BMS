@@ -11,9 +11,6 @@ import java.util.Scanner;
 
 public class DBConnect {
     private final static Scanner sc = new Scanner(System.in);
-    //private final static String url = "jdbc:oracle:thin:@40.79.43.65:1521:dbms";
-    // private final static String username = "\"23110134d\"";
-    // private final static String passwd = "mhhgtkic";
     private final static String url = "jdbc:oracle:thin:@localhost:1521:XE";
     private final static String username = "system";
     private final static String passwd = "oracledb";
