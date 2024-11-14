@@ -248,7 +248,7 @@ class AdminViewBanquet implements Menu {
         // Relationship Mapping of Banquet:
         // Banquet (Bin, Name, Address, Location, Availability, ContactLastName, ContactFirstName, Quota, Time)
 
-        String[] header = Attr.getColumns(BanquetAttr.values());
+        String[] header = {"BIN","Name"};
         ArrayList<String[]> rows = new ArrayList<>();
         int colNum = header.length;
 

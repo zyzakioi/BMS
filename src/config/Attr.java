@@ -1,5 +1,6 @@
 package config;
 
+import control.Controller;
 import utils.SecurityUtils;
 import utils.validator.Validator;
 import view.View;
@@ -99,7 +100,7 @@ public interface Attr {
         String[] res = new String[attrs.length];
         for (int i = 0; i < attrs.length; i++) {
             switch (attrs[i]) {
-                case BanquetAttr.BANQUET_ID -> res[i] = SecurityUtils.randBIN();
+                case BanquetAttr.BANQUET_ID -> res[i] = (++Controller.banquetNum) + "";
                 case RegistryAttr.BANQUET_ID -> throw new RuntimeException("cannot generate BIN in Registry context");
                 case MealAttr.BANQUET_ID -> throw new RuntimeException("cannot generate BIN in Meal context");
                 default -> res[i] = attrs[i].inputNewVal();

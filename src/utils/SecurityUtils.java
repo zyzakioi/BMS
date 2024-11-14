@@ -55,13 +55,13 @@ public class SecurityUtils {
         return constTimeCmp(hash, computedHash);
     }
 
-    public static String randBIN() {
-        StringBuilder sb = new StringBuilder(BIN_LENGTH);
-        for (int i = 0; i < BIN_LENGTH; i++) {
-            sb.append(CHARS.charAt(RANDOM.nextInt(CHARS.length())));
-        }
-        return sb.toString();
-    }
+//    public static String randBIN() {
+//        StringBuilder sb = new StringBuilder(BIN_LENGTH);
+//        for (int i = 0; i < BIN_LENGTH; i++) {
+//            sb.append(CHARS.charAt(RANDOM.nextInt(CHARS.length())));
+//        }
+//        return sb.toString();
+//    }
 
     /**
      * The password is valid only if the following conditions are met:

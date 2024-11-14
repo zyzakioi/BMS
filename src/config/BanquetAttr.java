@@ -3,16 +3,16 @@ package config;
 import utils.validator.*;
 
 public enum BanquetAttr implements Attr{
-    BANQUET_ID("BIN", "banquet ID", null),
-    BANQUET_NAME("Banquet_name", "banquet name", new NameValidator()),
-    DATE("Banquet_date", "date", new DateValidator()),
-    TIME("Banquet_time", "time", new TimeValidator()),
-    LOCATION("Location", "location", new AddressValidator()),
-    ADDRESS("Address", "address", new AddressValidator()),
-    CONTACT_FIRST_NAME("First_name", "first name", new NameValidator()),
-    CONTACT_LAST_NAME("Last_name", "last name", new NameValidator()),
-    AVAILABILITY("Availability", "availability (0/1)", new BoolValidator()),
-    QUOTA("Quota", "quota", new IntValidator());
+    BANQUET_ID("BIN", "Banquet ID", null),
+    BANQUET_NAME("Banquet_name", "Banquet Name", new NameValidator()),
+    DATE("Banquet_date", "Date", new DateValidator()),
+    TIME("Banquet_time", "Time", new TimeValidator()),
+    LOCATION("Location", "Location", new AddressValidator()),
+    ADDRESS("Address", "Address", new AddressValidator()),
+    CONTACT_FIRST_NAME("First_name", "First name", new NameValidator()),
+    CONTACT_LAST_NAME("Last_name", "Last name", new NameValidator()),
+    AVAILABILITY("Availability", "Availability (0/1)", new BoolValidator()),
+    QUOTA("Quota", "Quota", new IntValidator());
 
     private final String attrName;
     private final String description;

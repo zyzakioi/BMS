@@ -43,6 +43,16 @@ public class View {
     }
 
     public static void displayTable(String[] header, ArrayList<String[]> rows){
-
+        System.out.println();
+        for (String s : header) {
+            System.out.print(s + "\t");
+        }
+        System.out.println();
+        for (String[] row : rows) {
+            for (String s : row) {
+                System.out.print(s + "\t");
+            }
+            System.out.println();
+        }
     }
 }

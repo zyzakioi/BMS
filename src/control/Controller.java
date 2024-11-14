@@ -10,6 +10,7 @@ import utils.InputUtils;
 import utils.SecurityUtils;
 import view.View;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -20,7 +21,7 @@ import static utils.InputUtils.*;
 public class Controller {
     public static final Scanner sc = new Scanner(System.in);
     public static final DBConnect db = new DBConnect();
-
+    public static int banquetNum;
     public void init() throws SQLException {
         String options = """
                 1. Attendee
@@ -29,6 +30,9 @@ public class Controller {
                 4. Exit
                 """;
         boolean isRunning = true;
+        ResultSet bN = db.executeQuery("SELECT COUNT(*) FROM Banquet");
+        bN.next();
+        banquetNum = bN.getInt(1);
         while (isRunning) {
             View.displayOptions("account type", options);
             int op = getDigit("");

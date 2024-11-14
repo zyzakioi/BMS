@@ -2,7 +2,8 @@ package control;
 
 import java.sql.*;
 
-import oracle.jdbc.driver.*;
+//import oracle.jdbc.driver.*;
+import org.sqlite.*;
 import view.View;
 
 import javax.sql.rowset.CachedRowSet;
@@ -11,17 +12,17 @@ import java.util.Scanner;
 
 public class DBConnect {
     private final static Scanner sc = new Scanner(System.in);
-    private final static String url = "jdbc:oracle:thin:@localhost:1521:XE";
-    private final static String username = "system";
-    private final static String passwd = "oracledb";
-    private final static OracleConnection connection;
+    private final static String url = "jdbc:sqlite:test_file.db";
+    //private final static String username = "system";
+    //private final static String passwd = "oracledb";
+    private final static SQLiteConnection connection;
 
     static {
         try {
-            DriverManager.registerDriver(new OracleDriver());
+            //DriverManager.registerDriver(new Sq());
             // String username = getStr("[Oracle Database] username (requires double quote)");
             // String passwd = getStr("[Oracle Database] password");
-            connection = (OracleConnection) DriverManager.getConnection(url, username, passwd);
+            connection = (SQLiteConnection) DriverManager.getConnection(url);
             System.out.println("Connected.");
         } catch (SQLException e) {
             View.displayError("database connection failed to establish");
