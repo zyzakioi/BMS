@@ -21,7 +21,7 @@ import static utils.InputUtils.*;
 public class Controller {
     public static final Scanner sc = new Scanner(System.in);
     public static final DBConnect db = new DBConnect();
-    public static int banquetNum;
+    public static int banquetNum, adminNum, attendeeNum;
     public void init() throws SQLException {
         String options = """
                 1. Attendee
@@ -30,9 +30,16 @@ public class Controller {
                 4. Exit
                 """;
         boolean isRunning = true;
-        ResultSet bN = db.executeQuery("SELECT COUNT(*) FROM Banquet");
-        bN.next();
-        banquetNum = bN.getInt(1);
+        ResultSet N = db.executeQuery("SELECT COUNT(*) FROM Banquet");
+        N.next();
+        banquetNum = N.getInt(1);
+        N = db.executeQuery("SELECT COUNT(*) FROM Administrator");
+        N.next();
+        adminNum = N.getInt(1);
+        N = db.executeQuery("SELECT COUNT(*) FROM Attendee");
+        N.next();
+        attendeeNum = N.getInt(1);
+        N.close();
         while (isRunning) {
             View.displayOptions("Account Type", options);
             int op = getDigit("");
@@ -76,14 +83,15 @@ public class Controller {
     }
 
     private void initRegister() throws SQLException{
-        Attr ID = AttendeeAttr.ATTENDEE_ID;
-        String[] finalVals = new String[8];
-        finalVals[0] = ID.inputNewVal();
+        Attr ID = AttendeeAttr.EMAIL;
+        String[] finalVals = new String[9];
+        finalVals[0] = ++attendeeNum + "";
+        finalVals[1] = ID.inputNewVal();
         char[] rawPasswd = getPasswd("Password");
-        finalVals[1] = SecurityUtils.toHash(rawPasswd);
-        Attr[] infos = Arrays.copyOfRange(AttendeeAttr.values(), 2, 8);
+        finalVals[2] = SecurityUtils.toHash(rawPasswd);
+        Attr[] infos = Arrays.copyOfRange(AttendeeAttr.values(), 3, 9);
         String[] infoVals = Attr.inputNewVals(infos);
-        System.arraycopy(infoVals, 0, finalVals, 2, 6);
+        System.arraycopy(infoVals, 0, finalVals, 3, 6);
 
         try {
             Tables.ATTENDEE.insert(finalVals);
@@ -94,7 +102,7 @@ public class Controller {
         }
 
         // Directly login
-        try (Attendee attendeeSession = new Attendee(finalVals[0], rawPasswd)) {
+        try (Attendee attendeeSession = new Attendee(finalVals[1], rawPasswd)) {
             attendeeSession.login();
         } catch (BMSException e) {
             View.displayError(e.getMessage());

@@ -26,7 +26,7 @@ public class Admin implements User {
 
     @Override
     public void login() throws BMSException, SQLException {
-        Attr ID = AdminAttr.ADMIN_ID;
+        Attr ID = AdminAttr.EMAIL;
         Attr PW = AdminAttr.PASSWORD;
         if (User.auth(ID, PW, new String(email), passwd, true)) menu.start();
         else View.displayError("Email or password incorrect");
@@ -146,11 +146,11 @@ class AdminEditBanquet implements Menu {
     }
 
     private static void takeAttendance(String banquetID) throws SQLException, BMSException{
-        String email = RegistryAttr.ATTENDEE_ID.inputHasVal();
+        String email = RegistryAttr.EMAIL.inputHasVal();
         String condition = String.format(
                 "%s = %s AND %s = %s",
                 RegistryAttr.BANQUET_ID, banquetID,
-                RegistryAttr.ATTENDEE_ID, email
+                RegistryAttr.EMAIL, email
         );
         RegistryAttr.ATTENDANCE.updateTo("1", condition);
     }
@@ -186,23 +186,23 @@ class AdminMenuAttendee implements Menu {
     }
 
     private static void updateAttendee(String banquetID) throws SQLException, BMSException {
-        String email = RegistryAttr.ATTENDEE_ID.inputHasVal();
+        String email = RegistryAttr.EMAIL.inputHasVal();
         RegistryAttr attr = (RegistryAttr) Attr.inputValidAttr(sc, RegistryAttr.values());
         String newVal = attr.inputNewVal();
         String condition = String.format(
                 "%s = %s AND %s = %s",
                 RegistryAttr.BANQUET_ID, banquetID,
-                RegistryAttr.ATTENDEE_ID, email
+                RegistryAttr.EMAIL, email
         );
         attr.updateTo(newVal, condition);
     }
 
     private static void unregisterAttendee(String banquetID) throws SQLException{
-        String attendeeID = RegistryAttr.ATTENDEE_ID.inputHasVal();
+        String attendeeID = RegistryAttr.EMAIL.inputHasVal();
         String conditions = String.format(
                 "%s = %s AND %s = %s",
                 RegistryAttr.BANQUET_ID, banquetID,
-                RegistryAttr.ATTENDEE_ID, attendeeID
+                RegistryAttr.EMAIL, attendeeID
         );
         ResultSet rs = db.executeQuery("SELECT COUNT(*) FROM Registration WHERE " + conditions);
         rs.next();

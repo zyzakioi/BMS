@@ -4,7 +4,8 @@ import utils.validator.EmailValidator;
 import utils.validator.Validator;
 
 public enum AdminAttr implements Attr{
-    ADMIN_ID("Email", "Email", new EmailValidator()),
+    ADMIN_ID("Admin_ID", "Admin ID", null),
+    EMAIL("Email", "Email", new EmailValidator()),
     PASSWORD("Password", "Password", null);
 
     private final String attrName;

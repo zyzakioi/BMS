@@ -3,10 +3,10 @@ package config;
 import utils.validator.*;
 
 public enum RegistryAttr implements Attr {
-    ATTENDEE_ID(
-            AttendeeAttr.ATTENDEE_ID.getAttrName(),
-            AttendeeAttr.ATTENDEE_ID.getDescription(),
-            AttendeeAttr.ATTENDEE_ID.getValidator()
+    EMAIL(
+            AttendeeAttr.EMAIL.getAttrName(),
+            AttendeeAttr.EMAIL.getDescription(),
+            AttendeeAttr.EMAIL.getValidator()
     ),
     BANQUET_ID(
             BanquetAttr.BANQUET_ID.getAttrName(),
@@ -38,16 +38,16 @@ public enum RegistryAttr implements Attr {
     @Override public String getAttrName() { return attrName; }
     @Override public String getDescription() { return description; }
     @Override public Validator getValidator() { return vd; }
-    @Override public boolean isUpdatable() { return this != ATTENDEE_ID && this != BANQUET_ID && this != MEAL_ID;}
+    @Override public boolean isUpdatable() { return this != EMAIL && this != BANQUET_ID && this != MEAL_ID;}
 
-    public static boolean hasAttr(String attr) {
-        for (RegistryAttr a: RegistryAttr.values()) {
-            if (a.toString().equalsIgnoreCase(attr)) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    public static boolean hasAttr(String attr) {
+//        for (RegistryAttr a: RegistryAttr.values()) {
+//            if (a.toString().equalsIgnoreCase(attr)) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     /**
      * Convert string to RegistryAttr

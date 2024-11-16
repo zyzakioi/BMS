@@ -3,7 +3,8 @@ package config;
 import utils.validator.*;
 
 public enum AttendeeAttr implements Attr{
-    ATTENDEE_ID("Account_ID", "Email", new EmailValidator()),
+    ATTENDEE_ID("Att_ID", "Attendee ID", null),
+    EMAIL("Email", "Email", new EmailValidator()),
     PASSWORD("Password", "Password", null),
     FIRST_NAME("First_name", "First name", new NameValidator()),
     LAST_NAME("Last_name", "Last name", new NameValidator()),

@@ -25,7 +25,7 @@ public class Attendee implements User {
     }
 
     public void login() throws BMSException, SQLException {
-        Attr ID = AttendeeAttr.ATTENDEE_ID;
+        Attr ID = AttendeeAttr.EMAIL;
         Attr PW = AttendeeAttr.PASSWORD;
         if (User.auth(ID, PW, new String(email), passwd, false)) menu.start();
         else View.displayError("Email or password incorrect");
@@ -73,10 +73,10 @@ class AttendeeMainMenu implements Menu {
 }
 
 class UpdateInfo implements Menu {
-    private final String email;
+    private String email;
 
     UpdateInfo(String email) {
-        this.email = email;
+        this.email = "\"" + email + "\"";
     }
 
     @Override
@@ -102,9 +102,9 @@ class UpdateInfo implements Menu {
                 case 1 -> updateId(email);
                 case 2 -> updatePw(email);
                 case 3, 4, 5, 6, 7, 8 -> {
-                    String val = attrs[op - 1].inputNewVal();
-                    String condition = AttendeeAttr.ATTENDEE_ID + " = " + email;
-                    attrs[op - 1].updateTo(val, condition);
+                    String val = attrs[op].inputNewVal();
+                    String condition = AttendeeAttr.EMAIL + " = " + email;
+                    attrs[op].updateTo(val, condition);
                 }
             }
         }
@@ -112,16 +112,17 @@ class UpdateInfo implements Menu {
 
     private void updateId(String oldId) throws SQLException{
         // Assumes CASCADE UPDATE is on
-        String newId = AttendeeAttr.ATTENDEE_ID.inputUniqueVal();
-        String condition = AttendeeAttr.ATTENDEE_ID.getAttrName() + " = " + oldId;
-        AttendeeAttr.ATTENDEE_ID.updateTo(newId, condition);
+        String newId = AttendeeAttr.EMAIL.inputUniqueVal();
+        String condition = AttendeeAttr.EMAIL.getAttrName() + " = " + oldId;
+        AttendeeAttr.EMAIL.updateTo(newId, condition);
+        email = "\"" + newId + "\"";
     }
 
     private void updatePw(String Id) throws SQLException {
         char[] newPw = getPasswd("New password");
-        String condition = AttendeeAttr.ATTENDEE_ID.getAttrName() + " = " + Id;
+        String condition = AttendeeAttr.EMAIL.getAttrName() + " = " + Id;
         String hashPw = SecurityUtils.toHash(newPw);
-        AttendeeAttr.ATTENDEE_ID.updateTo(hashPw, condition);
+        AttendeeAttr.PASSWORD.updateTo(hashPw, condition);
     }
 }
 
