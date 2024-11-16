@@ -45,7 +45,7 @@ public enum MealAttr implements Attr{
             String mealType = MealAttr.TYPE.inputNewVal();
             String mealCuisine = MealAttr.CUISINE.inputNewVal();
             String mealPrice = MealAttr.PRICE.inputNewVal();
-            mealSet[i] = new String[]{banquetID, mealName, mealType, mealCuisine, mealPrice};
+            mealSet[i] = new String[]{mealName, banquetID, mealType, mealCuisine, mealPrice};
         }
         return mealSet;
     }
