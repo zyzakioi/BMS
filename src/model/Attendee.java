@@ -139,8 +139,16 @@ class SignUp implements Menu {
         while (true) {
             mealID = MealAttr.MEAL_ID.inputHasVal();
             String[] columns = new String[]{};
-            String[] conditionVals = new String[]{banquetID, mealID};
-            String conditionClause = RegistryAttr.BANQUET_ID + " = ? AND " + RegistryAttr.MEAL_ID + " = ?";
+            String[] conditionVals = new String[]{banquetID, "1", "0"};
+            String conditionClause = BanquetAttr.BANQUET_ID + " = ? AND " + BanquetAttr.AVAILABILITY + " = ? AND " + BanquetAttr.QUOTA + " > ?";
+            try (ResultSet rs = Tables.BANQUET.query(columns, conditionClause, conditionVals)) {
+                if (!rs.next()) {
+                    View.displayError("Banquet not available");
+                    continue;
+                }
+            }
+            conditionVals = new String[]{banquetID, mealID};
+            conditionClause = RegistryAttr.BANQUET_ID + " = ? AND " + RegistryAttr.MEAL_ID + " = ?";
             try (ResultSet rs = Tables.REGISTRY.query(columns, conditionClause, conditionVals)) {
                 if (rs.next()) break;
                 View.displayError("Meal not available in this banquet");
@@ -170,13 +178,13 @@ class ShowBanquets implements Menu {
 
     @Override
     public void start() throws SQLException {
-        String[] header = {"BIN","Name"};
+        String[] header = {"BIN","Name","Date","Time"};
         ArrayList<String[]> rows = new ArrayList<>();
         int colNum = header.length;
 
         String[] columns = new String[]{};
-        String conditionClause = BanquetAttr.AVAILABILITY.getAttrName() + " = ?";
-        String[] conditionVals = new String[]{"1"};
+        String conditionClause = BanquetAttr.AVAILABILITY.getAttrName() + " = ? AND Quota > ?";
+        String[] conditionVals = new String[]{"1","0"};
 
         try(ResultSet rs = Tables.BANQUET.query(columns, conditionClause, conditionVals)) {
             while (rs.next()) {

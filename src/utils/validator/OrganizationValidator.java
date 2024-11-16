@@ -10,12 +10,10 @@ public class OrganizationValidator implements Validator {
      * @return true if the organization is valid, false otherwise
      */
     @Override
-    public boolean eval(String str) {
-        return str.equals("PolyU") || str.equals("SPEED") || str.equals("HKCC");
-    }
+    public boolean eval(String str) {return str.matches("[A-Za-z0-9 ]{1,100}");}
 
     @Override
     public String reason() {
-        return "Organization must be one of the following: PolyU, SPEED, HKCC";
+        return "Organization must be alphanumeric and less than 100 characters";
     }
 }

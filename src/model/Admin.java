@@ -111,8 +111,8 @@ class AdminEditBanquet implements Menu {
                 5. Update Address
                 6. Update Contact First Name
                 7. Update Contact Last Name
-                8. Update Quota
-                9. Update Availability
+                8. Update Availability
+                9. Update Quota
                 0. Go Back
                 """;
 
@@ -258,7 +258,7 @@ class AdminViewBanquet implements Menu {
         // Relationship Mapping of Banquet:
         // Banquet (Bin, Name, Address, Location, Availability, ContactLastName, ContactFirstName, Quota, Time)
 
-        String[] header = {"BIN","Name"};
+        String[] header = {"BIN","Name","Date","Time"};
         ArrayList<String[]> rows = new ArrayList<>();
         int colNum = header.length;
 

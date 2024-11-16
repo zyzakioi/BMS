@@ -16,7 +16,7 @@ public class NameValidator implements Validator {
      */
     @Override
     public boolean eval(String str) {
-        boolean res = !str.isEmpty() && str.length() <= 20;
+        boolean res = !str.isEmpty() && str.length() <= 100;
         res = res && str.matches("^[a-zA-Z]+$");
         res = res && Character.isUpperCase(str.charAt(0));
         return res;
@@ -24,6 +24,6 @@ public class NameValidator implements Validator {
 
     @Override
     public String reason() {
-        return "Name must contain only alphabetic characters, at most 20 characters long, capitalized";
+        return "Name must contain only alphabetic characters, at most 100 characters long, capitalized";
     }
 }
