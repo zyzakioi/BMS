@@ -28,7 +28,7 @@ public class Admin implements User {
     public void login() throws BMSException, SQLException {
         Attr ID = AdminAttr.ADMIN_ID;
         Attr PW = AdminAttr.PASSWORD;
-        if (User.auth(ID, PW, new String(email), passwd)) menu.start();
+        if (User.auth(ID, PW, new String(email), passwd, true)) menu.start();
         else View.displayError("Email or password incorrect");
     }
 

@@ -12,7 +12,6 @@ public class AccountTypeValidator implements Validator {
      */
     @Override
     public boolean eval(String str) {
-        str = str.toLowerCase();
         return str.equals("Student") || str.equals("Staff") || str.equals("Alumni") || str.equals("Guest");
     }
 

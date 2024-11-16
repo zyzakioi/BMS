@@ -27,7 +27,7 @@ public class Attendee implements User {
     public void login() throws BMSException, SQLException {
         Attr ID = AttendeeAttr.ATTENDEE_ID;
         Attr PW = AttendeeAttr.PASSWORD;
-        if (User.auth(ID, PW, new String(email), passwd)) menu.start();
+        if (User.auth(ID, PW, new String(email), passwd, false)) menu.start();
         else View.displayError("Email or password incorrect");
     }
 
