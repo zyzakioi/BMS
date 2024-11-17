@@ -47,13 +47,13 @@ public class Controller {
                 case 2 -> initAdmin();
                 case 3 -> initRegister();
                 case 4 -> {
+                    db.close();
                     View.displayExit();
                     isRunning = false;
                 }
                 default -> View.displayBadInput("{1, 2, 3, 4}", op);
             }
         }
-        db.close();
     }
 
     private void initAttendee() throws SQLException{
