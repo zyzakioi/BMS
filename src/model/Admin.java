@@ -17,21 +17,25 @@ import static utils.InputUtils.*;
 
 public class Admin implements User {
     private final Menu menu;
-
-    transient private final char[] email;
     transient private final char[] passwd;
+    private final int ID;
 
     public Admin(String email, char[] passwd) throws BMSException {
-        this.email = email.toCharArray();
         this.passwd = passwd;
-        menu = new AdminMainMenu(email);
+        try(ResultSet rs = Tables.ADMIN.query(new String[]{AdminAttr.ADMIN_ID.getAttrName()}, AdminAttr.EMAIL + " = ?", new String[]{email})) {
+            if (!rs.next()) throw new BMSException("Admin not found");
+            ID = rs.getInt(1);
+        } catch (SQLException e) {
+            throw new BMSException(e.getMessage());
+        }
+        menu = new AdminMainMenu(ID);
     }
 
     @Override
     public void login() throws BMSException, SQLException {
-        Attr ID = AdminAttr.EMAIL;
+        Attr ID = AdminAttr.ADMIN_ID;
         Attr PW = AdminAttr.PASSWORD;
-        if (User.auth(ID, PW, new String(email), passwd, true)) menu.start();
+        if (User.auth(ID, PW, this.ID, passwd, true)) menu.start();
         else View.displayError("Email or password incorrect");
     }
 
@@ -41,7 +45,6 @@ public class Admin implements User {
      */
     @Override
     public void close() {
-        Arrays.fill(email, '\0');
         Arrays.fill(passwd, '\0');
     }
 }
@@ -55,9 +58,9 @@ class AdminMainMenu implements Menu {
     static Menu menu6;
     private static final Menu menu7 = new NewAdmin();
 
-    AdminMainMenu(String email) {
-        menu5 = new UpdateEmail(email);
-        menu6 = new UpdatePassword(email);
+    AdminMainMenu(int ID) {
+        menu5 = new UpdateEmail(ID);
+        menu6 = new UpdatePassword(ID);
     }
 
     @Override
@@ -93,7 +96,7 @@ class AdminMainMenu implements Menu {
 class AdminEditBanquet implements Menu {
     @Override
     public void start() throws SQLException{
-        String banquetID = BanquetAttr.BANQUET_ID.inputHasVal();
+        String banquetID = BanquetAttr.BIN.inputHasVal();
 
         String options = """
                 1. Update Banquet
@@ -142,7 +145,7 @@ class AdminEditBanquet implements Menu {
             if (op == 0) return;
             if (1 <= op && op <= 9) {
                 String val = attrs[op].inputNewVal();
-                String condition = BanquetAttr.BANQUET_ID + " = " + banquetID;
+                String condition = BanquetAttr.BIN + " = " + banquetID;
                 attrs[op].updateTo(val, condition);
                 break;
             }
@@ -150,33 +153,34 @@ class AdminEditBanquet implements Menu {
     }
 
     private static void updateMeal(String banquetID) throws SQLException, BMSException{
-        String mealName = MealAttr.MEAL_ID.inputHasVal();
+        String mealName = MealAttr.DISH_NAME.inputHasVal();
         MealAttr attr = (MealAttr) Attr.inputValidAttr(sc, MealAttr.values());
 
         String val = attr.inputNewVal();
         String condition = String.format(
                 "%s = %s AND %s = %s",
-                MealAttr.BANQUET_ID, banquetID,
-                MealAttr.MEAL_ID, mealName
+                MealAttr.BIN, banquetID,
+                MealAttr.DISH_NAME, mealName
         );
-        MealAttr.MEAL_ID.updateTo(val, condition);
+        MealAttr.DISH_NAME.updateTo(val, condition);
     }
 
     private static void takeAttendance(String banquetID) throws SQLException, BMSException{
-        String email = RegistryAttr.EMAIL.inputHasVal();
+        String email = AttendeeAttr.EMAIL.inputHasVal();
+        int ID = AttendeeAttr.getID(email);
         String condition = String.format(
-                "%s = %s AND %s = %s",
-                RegistryAttr.BANQUET_ID, banquetID,
-                RegistryAttr.EMAIL, email
+                "%s = %s AND %s = %d",
+                RegistrationAttr.BIN, banquetID,
+                RegistrationAttr.ATT_ID, ID
         );
-        RegistryAttr.ATTENDANCE.updateTo("1", condition);
+        RegistrationAttr.ATTENDANCE.updateTo("1", condition);
     }
 }
 
 class AdminMenuAttendee implements Menu {
     @Override
     public void start () throws SQLException{
-        String banquetID = RegistryAttr.BANQUET_ID.inputHasVal();
+        String banquetID = RegistrationAttr.BIN.inputHasVal();
 
         String options = """
                 1. Update Register Attendee
@@ -203,36 +207,38 @@ class AdminMenuAttendee implements Menu {
     }
 
     private static void updateAttendee(String banquetID) throws SQLException, BMSException {
-        String email = RegistryAttr.EMAIL.inputHasVal();
-        RegistryAttr attr = (RegistryAttr) Attr.inputValidAttr(sc, RegistryAttr.values());
+        String email = AttendeeAttr.EMAIL.inputHasVal();
+        int ID = AttendeeAttr.getID(email);
+        RegistrationAttr attr = (RegistrationAttr) Attr.inputValidAttr(sc, RegistrationAttr.values());
         String newVal = attr.inputNewVal();
         String condition = String.format(
-                "%s = %s AND %s = %s",
-                RegistryAttr.BANQUET_ID, banquetID,
-                RegistryAttr.EMAIL, email
+                "%s = %s AND %s = %d",
+                RegistrationAttr.BIN, banquetID,
+                RegistrationAttr.ATT_ID, ID
         );
         attr.updateTo(newVal, condition);
     }
 
     private static void unregisterAttendee(String banquetID) throws SQLException{
-        String attendeeID = RegistryAttr.EMAIL.inputHasVal();
+        String email = AttendeeAttr.EMAIL.inputHasVal();
+        int ID = AttendeeAttr.getID(email);
         String conditions = String.format(
-                "%s = %s AND %s = %s",
-                RegistryAttr.BANQUET_ID, banquetID,
-                RegistryAttr.EMAIL, attendeeID
+                "%s = %s AND %s = %d",
+                RegistrationAttr.BIN, banquetID,
+                RegistrationAttr.ATT_ID, ID
         );
         ResultSet rs = db.executeQuery("SELECT COUNT(*) FROM Registration WHERE " + conditions);
         rs.next();
         if (rs.getInt(1) == 0) {
-            View.displayError("Attendee ID \"" + attendeeID + "\" is not registered");
+            View.displayError("Attendee ID \"" + ID + "\" is not registered");
             return;
         }
-        Tables.REGISTRY.delete(conditions);
-        View.displayMessage("Attendee ID \"" + attendeeID + "\" has been unregistered");
-        BanquetAttr.QUOTA.updateTo("Quota + 1", BanquetAttr.BANQUET_ID + " = " + banquetID);
-        rs = Tables.BANQUET.query(new String[]{BanquetAttr.QUOTA.getAttrName()}, BanquetAttr.BANQUET_ID + " = ?", new String[]{banquetID});
+        Tables.REGISTRATION.delete(conditions);
+        View.displayMessage("Attendee ID \"" + ID + "\" has been unregistered");
+        BanquetAttr.QUOTA.updateTo("Quota + 1", BanquetAttr.BIN + " = " + banquetID);
+        rs = Tables.BANQUET.query(new String[]{BanquetAttr.QUOTA.getAttrName()}, BanquetAttr.BIN + " = ?", new String[]{banquetID});
         rs.next();
-        if(rs.getInt(1) > 0) BanquetAttr.AVAILABILITY.updateTo("1", BanquetAttr.BANQUET_ID + " = " + banquetID);
+        if(rs.getInt(1) > 0) BanquetAttr.AVAILABILITY.updateTo("1", BanquetAttr.BIN + " = " + banquetID);
         rs.close();
     }
 
@@ -241,7 +247,7 @@ class AdminMenuAttendee implements Menu {
         ArrayList<String[]> rows = new ArrayList<>();
         int colNum = columns.length;
 
-        try(ResultSet rs = Tables.REGISTRY.query(columns, "", new String[]{})) {
+        try(ResultSet rs = Tables.REGISTRATION.query(columns, "", new String[]{})) {
             String[] row = new String[colNum];
             while (rs.next()) {
                 for (int i = 0; i < colNum; i++)
@@ -299,26 +305,24 @@ class AdminViewBanquet implements Menu {
 }
 
 class UpdateEmail implements Menu {
-    private static String email;
-    UpdateEmail(String email) {
-        UpdateEmail.email = "\"" + email + "\"";
+    private static int ID;
+    UpdateEmail(int ID) {
+        UpdateEmail.ID = ID;
     }
     public void start() throws SQLException {
         String newEmail = AdminAttr.EMAIL.inputUniqueVal();
-        AdminAttr.EMAIL.updateTo(newEmail, AdminAttr.EMAIL + " = " + email);
-        AdminMainMenu.menu5 = new UpdateEmail(newEmail);
-        AdminMainMenu.menu6 = new UpdatePassword(newEmail);
+        AdminAttr.EMAIL.updateTo(newEmail, AdminAttr.ADMIN_ID.getAttrName() + " = " + ID);
     }
 }
 
 class UpdatePassword implements Menu {
-    private static String email;
-    UpdatePassword(String email) {
-        UpdatePassword.email = "\"" + email + "\"";
+    private static int ID;
+    UpdatePassword(int ID) {
+        UpdatePassword.ID = ID;
     }
     public void start() throws SQLException {
         char[] newPw = getNewPasswd("New Password");
-        String condition = AdminAttr.EMAIL + " = " + email;
+        String condition = AdminAttr.ADMIN_ID + " = " + ID;
         String hashPw = SecurityUtils.toHash(newPw);
         AdminAttr.PASSWORD.updateTo(hashPw, condition);
     }

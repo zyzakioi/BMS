@@ -3,7 +3,7 @@ package config;
 import utils.validator.*;
 
 public enum BanquetAttr implements Attr{
-    BANQUET_ID("BIN", "Banquet ID", null),
+    BIN("BIN", "BIN", null),
     BANQUET_NAME("Banquet_name", "Banquet Name", new NameValidator()),
     DATE("Banquet_date", "Date", new DateValidator()),
     TIME("Banquet_time", "Time", new TimeValidator()),
@@ -30,5 +30,5 @@ public enum BanquetAttr implements Attr{
     @Override public String getAttrName() { return attrName; }
     @Override public String getDescription() { return description; }
     @Override public Validator getValidator() { return vd;}
-    @Override public boolean isUpdatable() { return this != BANQUET_ID; }
+    @Override public boolean isUpdatable() { return this != BIN; }
 }

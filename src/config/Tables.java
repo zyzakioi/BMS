@@ -12,7 +12,7 @@ public enum Tables {
     ADMIN("Administrator", AdminAttr.class),
     BANQUET("Banquet", BanquetAttr.class),
     MEAL("Meal", MealAttr.class),
-    REGISTRY("Registration", RegistryAttr.class);
+    REGISTRATION("Registration", RegistrationAttr.class);
 
     private final String tableName;
     private final Class<? extends Attr> tableAttr;

@@ -2,21 +2,21 @@ package config;
 
 import utils.validator.*;
 
-public enum RegistryAttr implements Attr {
-    EMAIL(
-            AttendeeAttr.EMAIL.getAttrName(),
-            AttendeeAttr.EMAIL.getDescription(),
-            AttendeeAttr.EMAIL.getValidator()
+public enum RegistrationAttr implements Attr {
+    ATT_ID(
+            AttendeeAttr.ATT_ID.getAttrName(),
+            AttendeeAttr.ATT_ID.getDescription(),
+            AttendeeAttr.ATT_ID.getValidator()
     ),
-    BANQUET_ID(
-            BanquetAttr.BANQUET_ID.getAttrName(),
-            BanquetAttr.BANQUET_ID.getDescription(),
-            BanquetAttr.BANQUET_ID.getValidator()
+    BIN(
+            BanquetAttr.BIN.getAttrName(),
+            BanquetAttr.BIN.getDescription(),
+            BanquetAttr.BIN.getValidator()
     ),
-    MEAL_ID(
-            MealAttr.MEAL_ID.getAttrName(),
-            MealAttr.MEAL_ID.getDescription(),
-            MealAttr.MEAL_ID.getValidator()
+    DISH_NAME(
+            MealAttr.DISH_NAME.getAttrName(),
+            MealAttr.DISH_NAME.getDescription(),
+            MealAttr.DISH_NAME.getValidator()
     ),
     DRINK("Drink", "Drink", new DrinkValidator()),
     SEAT("Seat", "Seat number", new SeatValidator()),
@@ -26,9 +26,9 @@ public enum RegistryAttr implements Attr {
     private final String attrName;
     private final String description; // user friendly description
     private final Validator vd;
-    private final static Tables table = Tables.REGISTRY;
+    private final static Tables table = Tables.REGISTRATION;
 
-    RegistryAttr(String attrName, String description, Validator vd) {
+    RegistrationAttr(String attrName, String description, Validator vd) {
         this.attrName = attrName;
         this.description = description;
         this.vd = vd;
@@ -38,5 +38,5 @@ public enum RegistryAttr implements Attr {
     @Override public String getAttrName() { return attrName; }
     @Override public String getDescription() { return description; }
     @Override public Validator getValidator() { return vd; }
-    @Override public boolean isUpdatable() { return this != EMAIL && this != BANQUET_ID && this != MEAL_ID;}
+    @Override public boolean isUpdatable() { return this != ATT_ID && this != BIN && this != DISH_NAME;}
 }

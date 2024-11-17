@@ -14,25 +14,29 @@ import static utils.InputUtils.*;
 
 public class Attendee implements User {
     private final Menu menu;
-    private final char[] email;
     private final char[] passwd;
+    private final int ID;
 
     public Attendee(String email, char[] passwd) throws BMSException {
-        this.email = email.toCharArray();
         this.passwd = passwd;
-        this.menu = new AttendeeMainMenu(email);
+        try (ResultSet rs = Tables.ATTENDEE.query(new String[]{AttendeeAttr.ATT_ID.getAttrName()}, AttendeeAttr.EMAIL.getAttrName() + " = ?", new String[]{email})) {
+            if (rs.next()) ID = rs.getInt(1);
+            else throw new BMSException("Attendee not found");
+        } catch (SQLException e) {
+            throw new BMSException("Unexpected SQL error occurred");
+        }
+        this.menu = new AttendeeMainMenu(ID);
     }
 
     public void login() throws BMSException, SQLException {
-        Attr ID = AttendeeAttr.EMAIL;
+        Attr ID = AttendeeAttr.ATT_ID;
         Attr PW = AttendeeAttr.PASSWORD;
-        if (User.auth(ID, PW, new String(email), passwd, false)) menu.start();
-        else View.displayError("Email or password incorrect");
+        if (User.auth(ID, PW, this.ID, passwd, false)) menu.start();
+        else View.displayError("Password incorrect");
     }
 
     @Override
     public void close() {
-        Arrays.fill(email, '\0');
         Arrays.fill(passwd, '\0');
     }
 }
@@ -40,10 +44,10 @@ public class Attendee implements User {
 class AttendeeMainMenu implements Menu {
     static Menu menu1, menu2, menu3;
 
-    AttendeeMainMenu(String email) {
-        menu1 = new UpdateInfo(email);
+    AttendeeMainMenu(int ID) {
+        menu1 = new UpdateInfo(ID);
         menu2 = new ShowBanquets();
-        menu3 = new SignUp(email);
+        menu3 = new SignUp(ID);
     }
 
 
@@ -72,10 +76,10 @@ class AttendeeMainMenu implements Menu {
 }
 
 class UpdateInfo implements Menu {
-    private String email;
+    private final int ID;
 
-    UpdateInfo(String email) {
-        this.email = "\"" + email + "\"";
+    UpdateInfo(int ID) {
+        this.ID = ID;
     }
 
     @Override
@@ -98,75 +102,81 @@ class UpdateInfo implements Menu {
             int op = getDigit("Action");
             switch (op) {
                 case 0 -> { return; }
-                case 1 -> {
-                    updateId(email);
-                    AttendeeMainMenu.menu1 = new UpdateInfo(email);
-                    AttendeeMainMenu.menu3 = new SignUp(email);
-                }
-                case 2 -> updatePw(email);
+                case 1 -> updateId(ID);
+                case 2 -> updatePw(ID);
                 case 3, 4, 5, 6, 7, 8 -> {
                     String val = attrs[op].inputNewVal();
-                    String condition = AttendeeAttr.EMAIL + " = " + email;
+                    String condition = AttendeeAttr.ATT_ID + " = " + ID;
                     attrs[op].updateTo(val, condition);
                 }
             }
         }
     }
 
-    private void updateId(String oldId) throws SQLException{
+    private void updateId(int ID) throws SQLException{
         // Assumes CASCADE UPDATE is on
         String newId = AttendeeAttr.EMAIL.inputUniqueVal();
-        String condition = AttendeeAttr.EMAIL.getAttrName() + " = " + oldId;
+        String condition = AttendeeAttr.ATT_ID.getAttrName() + " = " + ID;
         AttendeeAttr.EMAIL.updateTo(newId, condition);
-        email = "\"" + newId + "\"";
     }
 
-    private void updatePw(String Id) throws SQLException {
+    private void updatePw(int ID) throws SQLException {
         char[] newPw = getNewPasswd("New password");
-        String condition = AttendeeAttr.EMAIL.getAttrName() + " = " + Id;
+        String condition = AttendeeAttr.ATT_ID.getAttrName() + " = " + ID;
         String hashPw = SecurityUtils.toHash(newPw);
         AttendeeAttr.PASSWORD.updateTo(hashPw, condition);
     }
 }
 
 class SignUp implements Menu {
-    private final String email;
-
-    SignUp(String email) {
-        this.email = email;
-    }
+    private final int ID;
+    SignUp(int ID) {this.ID = ID;}
 
     @Override
     public void start() throws SQLException{
-        String banquetID = BanquetAttr.BANQUET_ID.inputHasVal();
-        String mealID;
-        while (true) {
-            mealID = MealAttr.MEAL_ID.inputHasVal();
-            String[] columns = new String[]{};
-            String[] conditionVals = new String[]{banquetID, "1", "0"};
-            String conditionClause = BanquetAttr.BANQUET_ID + " = ? AND " + BanquetAttr.AVAILABILITY + " = ? AND " + BanquetAttr.QUOTA + " > ?";
-            try (ResultSet rs = Tables.BANQUET.query(columns, conditionClause, conditionVals)) {
-                if (!rs.next()) {
-                    View.displayError("Banquet not available");
-                    continue;
-                }
-            }
-            conditionVals = new String[]{banquetID, mealID};
-            conditionClause = RegistryAttr.BANQUET_ID + " = ? AND " + RegistryAttr.MEAL_ID + " = ?";
-            try (ResultSet rs = Tables.REGISTRY.query(columns, conditionClause, conditionVals)) {
-                if (rs.next()) break;
-                View.displayError("Meal not available in this banquet");
+        String banquetID = BanquetAttr.BIN.inputHasVal();
+        try(ResultSet rs = Tables.REGISTRATION.query(new String[]{}, BanquetAttr.BIN.getAttrName() + " = ? AND Att_ID = ?", new String[]{banquetID, Integer.toString(ID)})) {
+            if (rs.next()) {
+                View.displayError("Already registered to this banquet");
+                return;
             }
         }
-        RegistryAttr[] otherAttrs = new RegistryAttr[]{RegistryAttr.DRINK, RegistryAttr.SEAT, RegistryAttr.REMARKS};
+        String[] columns = new String[]{};
+        String[] conditionVals = new String[]{banquetID, "1", "0"};
+        String conditionClause = BanquetAttr.BIN + " = ? AND " + BanquetAttr.AVAILABILITY + " = ? AND " + BanquetAttr.QUOTA + " > ?";
+        try (ResultSet rs = Tables.BANQUET.query(columns, conditionClause, conditionVals)) {
+            if (!rs.next()) {
+                View.displayError("Banquet not available");
+                return;
+            }
+        }
+        try(ResultSet rs = Tables.MEAL.query(new String[]{MealAttr.DISH_NAME.getAttrName()}, MealAttr.BIN.getAttrName() + " = ?", new String[]{banquetID})) {
+            View.displayMessage("Available meals:");
+            while(rs.next()){
+                View.displayMessage(rs.getString(1));
+            }
+        }
+        String mealID = MealAttr.DISH_NAME.inputHasVal();
+        conditionVals = new String[]{banquetID, mealID};
+        conditionClause = RegistrationAttr.BIN + " = ? AND " + RegistrationAttr.DISH_NAME + " = ?";
+        try (ResultSet rs = Tables.MEAL.query(columns, conditionClause, conditionVals)) {
+            if (!rs.next()) {
+                View.displayError("Meal not available in this banquet");
+                return;
+            }
+        }
+        RegistrationAttr[] otherAttrs = new RegistrationAttr[]{RegistrationAttr.DRINK, RegistrationAttr.SEAT, RegistrationAttr.REMARKS};
         String[] otherVals = Attr.inputNewVals(otherAttrs);
-        String[] vals = new String[]{email, banquetID, mealID, otherVals[0], otherVals[1], "0", otherVals[2]};
+        String[] vals = new String[]{Integer.toString(ID), banquetID, mealID, otherVals[0], otherVals[1], "0", otherVals[2]};
         try {
-            Tables.REGISTRY.insert(vals);
-            BanquetAttr.QUOTA.updateTo("Quota - 1", BanquetAttr.BANQUET_ID.getAttrName() + " = " + banquetID);
-            ResultSet rs = Tables.BANQUET.query(new String[]{"Quota"}, BanquetAttr.BANQUET_ID.getAttrName() + " = ?", new String[]{banquetID});
+            Tables.REGISTRATION.insert(vals);
+            ResultSet rs = Tables.BANQUET.query(new String[]{"Quota"}, BanquetAttr.BIN.getAttrName() + " = ?", new String[]{banquetID});
             rs.next();
-            if (rs.getInt(1) == 0) BanquetAttr.AVAILABILITY.updateTo("0", BanquetAttr.BANQUET_ID.getAttrName() + " = " + banquetID);
+            int quota = rs.getInt(1);
+            BanquetAttr.QUOTA.updateTo(quota - 1 + "", BanquetAttr.BIN.getAttrName() + " = " + banquetID);
+            rs = Tables.BANQUET.query(new String[]{"Quota"}, BanquetAttr.BIN.getAttrName() + " = ?", new String[]{banquetID});
+            rs.next();
+            if (rs.getInt(1) == 0) BanquetAttr.AVAILABILITY.updateTo("0", BanquetAttr.BIN.getAttrName() + " = " + banquetID);
             rs.close();
         } catch (BMSException e) {
             View.displayError("Already registered to this banquet");

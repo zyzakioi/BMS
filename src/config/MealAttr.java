@@ -6,12 +6,12 @@ import view.View;
 import java.util.HashSet;
 
 public enum MealAttr implements Attr{
-    BANQUET_ID(
-            BanquetAttr.BANQUET_ID.getAttrName(),
-            BanquetAttr.BANQUET_ID.getDescription(),
-            BanquetAttr.BANQUET_ID.getValidator()
+    BIN(
+            BanquetAttr.BIN.getAttrName(),
+            BanquetAttr.BIN.getDescription(),
+            BanquetAttr.BIN.getValidator()
     ),
-    MEAL_ID("Dish_name", "Dish name", new NameValidator()),
+    DISH_NAME("Dish_name", "Dish name", new NameValidator()),
     CUISINE("Cuisine", "Cuisine", new NameValidator()),
     PRICE("Price", "Price", new IntValidator()),
     TYPE("Type", "Type", new NameValidator()),;
@@ -33,7 +33,7 @@ public enum MealAttr implements Attr{
         for (int i = 0; i < 4; i++) {
             String mealName;
             while (true) {
-                mealName = MealAttr.MEAL_ID.inputNewVal();
+                mealName = MealAttr.DISH_NAME.inputNewVal();
                 if (!usedNames.contains(mealName)) {
                     usedNames.add(mealName);
                     break;
@@ -52,5 +52,5 @@ public enum MealAttr implements Attr{
     @Override public String getAttrName() { return attrName; }
     @Override public String getDescription() { return description; }
     @Override public Validator getValidator() { return vd; }
-    @Override public boolean isUpdatable() { return this != BANQUET_ID && this != MEAL_ID; }
+    @Override public boolean isUpdatable() { return this != BIN && this != DISH_NAME; }
 }

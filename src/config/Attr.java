@@ -99,9 +99,9 @@ public interface Attr {
         String[] res = new String[attrs.length];
         for (int i = 0; i < attrs.length; i++) {
             switch (attrs[i]) {
-                case BanquetAttr.BANQUET_ID -> res[i] = (++Controller.banquetNum) + "";
-                case RegistryAttr.BANQUET_ID -> throw new RuntimeException("Cannot generate BIN in Registry context");
-                case MealAttr.BANQUET_ID -> throw new RuntimeException("Cannot generate BIN in Meal context");
+                case BanquetAttr.BIN -> res[i] = (++Controller.banquetNum) + "";
+                case RegistrationAttr.BIN -> throw new RuntimeException("Cannot generate BIN in Registry context");
+                case MealAttr.BIN -> throw new RuntimeException("Cannot generate BIN in Meal context");
                 default -> res[i] = attrs[i].inputNewVal();
             }
         }
