@@ -8,10 +8,8 @@ import view.View;
 
 import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.RowSetProvider;
-import java.util.Scanner;
 
 public class DBConnect {
-    private final static Scanner sc = new Scanner(System.in);
     private final static String url = "jdbc:sqlite:test_file.db";
     //private final static String username = "system";
     //private final static String passwd = "oracledb";
@@ -19,9 +17,6 @@ public class DBConnect {
 
     static {
         try {
-            //DriverManager.registerDriver(new Sq());
-            // String username = getStr("[Oracle Database] username (requires double quote)");
-            // String passwd = getStr("[Oracle Database] password");
             connection = (SQLiteConnection) DriverManager.getConnection(url);
             System.out.println("Connected.");
         } catch (SQLException e) {

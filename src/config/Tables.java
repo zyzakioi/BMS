@@ -4,7 +4,6 @@ import exceptions.BMSException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 
 import static control.Controller.db;
 

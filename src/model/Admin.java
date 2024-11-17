@@ -1,7 +1,9 @@
 package model;
 
 import config.*;
+import control.Controller;
 import exceptions.BMSException;
+import utils.SecurityUtils;
 import view.View;
 
 import java.sql.ResultSet;
@@ -14,7 +16,7 @@ import static control.Controller.sc;
 import static utils.InputUtils.*;
 
 public class Admin implements User {
-    private static final Menu menu = new AdminMainMenu();
+    private final Menu menu;
 
     transient private final char[] email;
     transient private final char[] passwd;
@@ -22,6 +24,7 @@ public class Admin implements User {
     public Admin(String email, char[] passwd) throws BMSException {
         this.email = email.toCharArray();
         this.passwd = passwd;
+        menu = new AdminMainMenu(email);
     }
 
     @Override
@@ -48,14 +51,25 @@ class AdminMainMenu implements Menu {
     private static final Menu menu2 = new AdminNewBanquet();
     private static final Menu menu3 = new AdminEditBanquet();
     private static final Menu menu4 = new AdminMenuAttendee();
+    static Menu menu5;
+    static Menu menu6;
+    private static final Menu menu7 = new NewAdmin();
+
+    AdminMainMenu(String email) {
+        menu5 = new UpdateEmail(email);
+        menu6 = new UpdatePassword(email);
+    }
 
     @Override
     public void start() throws SQLException {
         String options = """
                 1. View All Banquets
                 2. Create New Banquet
-                3. Manage Existing Banquets
+                3. Manage Banquets
                 4. Manage Attendee Registration
+                5. Change Email
+                6. Change Password
+                7. Add New Admin
                 0. Logout
                 """;
         while (true) {
@@ -66,6 +80,9 @@ class AdminMainMenu implements Menu {
                 case 2 -> menu2.start();
                 case 3 -> menu3.start();
                 case 4 -> menu4.start();
+                case 5 -> menu5.start();
+                case 6 -> menu6.start();
+                case 7 -> menu7.start();
                 case 0 -> { return; }
                 default -> View.displayBadInput("Single digit 1~6", op);
             }
@@ -216,6 +233,7 @@ class AdminMenuAttendee implements Menu {
         rs = Tables.BANQUET.query(new String[]{BanquetAttr.QUOTA.getAttrName()}, BanquetAttr.BANQUET_ID + " = ?", new String[]{banquetID});
         rs.next();
         if(rs.getInt(1) > 0) BanquetAttr.AVAILABILITY.updateTo("1", BanquetAttr.BANQUET_ID + " = " + banquetID);
+        rs.close();
     }
 
     private static void viewAttendees() throws SQLException{
@@ -276,6 +294,46 @@ class AdminViewBanquet implements Menu {
             if (rows.isEmpty())
                 View.displayMessage("No banquets");
             else View.displayTable(header, rows);
+        }
+    }
+}
+
+class UpdateEmail implements Menu {
+    private static String email;
+    UpdateEmail(String email) {
+        UpdateEmail.email = "\"" + email + "\"";
+    }
+    public void start() throws SQLException {
+        String newEmail = AdminAttr.EMAIL.inputUniqueVal();
+        AdminAttr.EMAIL.updateTo(newEmail, AdminAttr.EMAIL + " = " + email);
+        AdminMainMenu.menu5 = new UpdateEmail(newEmail);
+        AdminMainMenu.menu6 = new UpdatePassword(newEmail);
+    }
+}
+
+class UpdatePassword implements Menu {
+    private static String email;
+    UpdatePassword(String email) {
+        UpdatePassword.email = "\"" + email + "\"";
+    }
+    public void start() throws SQLException {
+        char[] newPw = getNewPasswd("New Password");
+        String condition = AdminAttr.EMAIL + " = " + email;
+        String hashPw = SecurityUtils.toHash(newPw);
+        AdminAttr.PASSWORD.updateTo(hashPw, condition);
+    }
+}
+
+class NewAdmin implements Menu {
+    public void start() throws SQLException {
+        String email = AdminAttr.EMAIL.inputUniqueVal();
+        char[] rawPw = getNewPasswd("Password");
+        String hashPw = SecurityUtils.toHash(rawPw);
+        try {
+            Tables.ADMIN.insert(Integer.toString(++Controller.adminNum),email, hashPw);
+            View.displayMessage("Admin Added");
+        } catch (BMSException e) {
+            View.displayError(e.getMessage());
         }
     }
 }

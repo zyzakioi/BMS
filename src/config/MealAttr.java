@@ -3,8 +3,6 @@ package config;
 import utils.validator.NameValidator;
 import utils.validator.*;
 import view.View;
-
-import java.sql.SQLException;
 import java.util.HashSet;
 
 public enum MealAttr implements Attr{
@@ -29,7 +27,7 @@ public enum MealAttr implements Attr{
         this.vd = vd;
     }
 
-    public static String[][] getValidMealSet(String banquetID) throws SQLException {
+    public static String[][] getValidMealSet(String banquetID) {
         HashSet<String> usedNames = new HashSet<>();
         String[][] mealSet = new String[4][];
         for (int i = 0; i < 4; i++) {

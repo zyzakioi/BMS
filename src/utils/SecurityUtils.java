@@ -10,10 +10,7 @@ import javax.crypto.spec.PBEKeySpec;
 
 public class SecurityUtils {
     // Character set for random BIN generation
-    private static final String CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final SecureRandom RANDOM = new SecureRandom();
-    private static final int BIN_LENGTH = 10;
-
     // PBKDF2 configuration
     private static final String PBKDF2_ALGORITHM = "PBKDF2WithHmacSHA256";
     private static final int SALT_LENGTH = 16; // bytes
@@ -54,14 +51,6 @@ public class SecurityUtils {
         byte[] computedHash = hashPassword(password, salt);
         return constTimeCmp(hash, computedHash);
     }
-
-//    public static String randBIN() {
-//        StringBuilder sb = new StringBuilder(BIN_LENGTH);
-//        for (int i = 0; i < BIN_LENGTH; i++) {
-//            sb.append(CHARS.charAt(RANDOM.nextInt(CHARS.length())));
-//        }
-//        return sb.toString();
-//    }
 
     /**
      * The password is valid only if the following conditions are met:

@@ -4,7 +4,6 @@ import config.Attr;
 import config.Tables;
 import exceptions.BMSException;
 import utils.SecurityUtils;
-import view.View;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

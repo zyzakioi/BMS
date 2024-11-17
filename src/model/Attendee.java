@@ -10,8 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static utils.InputUtils.getDigit;
-import static utils.InputUtils.getPasswd;
+import static utils.InputUtils.*;
 
 public class Attendee implements User {
     private final Menu menu;
@@ -39,11 +38,11 @@ public class Attendee implements User {
 }
 
 class AttendeeMainMenu implements Menu {
-    Menu menu1, menu2, menu3;
+    static Menu menu1, menu2, menu3;
 
     AttendeeMainMenu(String email) {
         menu1 = new UpdateInfo(email);
-        menu2 = new ShowBanquets(email);
+        menu2 = new ShowBanquets();
         menu3 = new SignUp(email);
     }
 
@@ -99,7 +98,11 @@ class UpdateInfo implements Menu {
             int op = getDigit("Action");
             switch (op) {
                 case 0 -> { return; }
-                case 1 -> updateId(email);
+                case 1 -> {
+                    updateId(email);
+                    AttendeeMainMenu.menu1 = new UpdateInfo(email);
+                    AttendeeMainMenu.menu3 = new SignUp(email);
+                }
                 case 2 -> updatePw(email);
                 case 3, 4, 5, 6, 7, 8 -> {
                     String val = attrs[op].inputNewVal();
@@ -119,7 +122,7 @@ class UpdateInfo implements Menu {
     }
 
     private void updatePw(String Id) throws SQLException {
-        char[] newPw = getPasswd("New password");
+        char[] newPw = getNewPasswd("New password");
         String condition = AttendeeAttr.EMAIL.getAttrName() + " = " + Id;
         String hashPw = SecurityUtils.toHash(newPw);
         AttendeeAttr.PASSWORD.updateTo(hashPw, condition);
@@ -164,6 +167,7 @@ class SignUp implements Menu {
             ResultSet rs = Tables.BANQUET.query(new String[]{"Quota"}, BanquetAttr.BANQUET_ID.getAttrName() + " = ?", new String[]{banquetID});
             rs.next();
             if (rs.getInt(1) == 0) BanquetAttr.AVAILABILITY.updateTo("0", BanquetAttr.BANQUET_ID.getAttrName() + " = " + banquetID);
+            rs.close();
         } catch (BMSException e) {
             View.displayError("Already registered to this banquet");
         }
@@ -171,13 +175,6 @@ class SignUp implements Menu {
 }
 
 class ShowBanquets implements Menu {
-    private final String email;
-
-    ShowBanquets(String email) {
-        this.email = email;
-    }
-
-    @Override
     public void start() throws SQLException {
         String[] header = {"BIN","Name","Date","Time"};
         ArrayList<String[]> rows = new ArrayList<>();

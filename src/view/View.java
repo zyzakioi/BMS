@@ -14,10 +14,6 @@ public class View {
         System.out.print(options);
     }
 
-    public static void displayPrompt() {
-        System.out.print("\n>>> ");
-    }
-
     public static void displayPrompt(String s) {
         System.out.print("\nEnter " + s + ":\n>>> ");
     }

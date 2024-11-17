@@ -18,7 +18,7 @@ public enum RegistryAttr implements Attr {
             MealAttr.MEAL_ID.getDescription(),
             MealAttr.MEAL_ID.getValidator()
     ),
-    DRINK("Drink", "Drink", new NameValidator()),
+    DRINK("Drink", "Drink", new DrinkValidator()),
     SEAT("Seat", "Seat number", new SeatValidator()),
     ATTENDANCE("Attendance", "Attendance", new BoolValidator()), // NUMBER(1)
     REMARKS("Remarks", "Remarks", new RemarksValidator());
@@ -39,27 +39,4 @@ public enum RegistryAttr implements Attr {
     @Override public String getDescription() { return description; }
     @Override public Validator getValidator() { return vd; }
     @Override public boolean isUpdatable() { return this != EMAIL && this != BANQUET_ID && this != MEAL_ID;}
-
-//    public static boolean hasAttr(String attr) {
-//        for (RegistryAttr a: RegistryAttr.values()) {
-//            if (a.toString().equalsIgnoreCase(attr)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-
-    /**
-     * Convert string to RegistryAttr
-     * @param attr the String to convert
-     * @return the RegistryAttr. null if not found
-     */
-    public static RegistryAttr fromString(String attr) {
-        for (RegistryAttr a: RegistryAttr.values()) {
-            if (a.toString().equalsIgnoreCase(attr)) {
-                return a;
-            }
-        }
-        return null;
-    }
 }

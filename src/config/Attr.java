@@ -1,7 +1,6 @@
 package config;
 
 import control.Controller;
-import utils.SecurityUtils;
 import utils.validator.Validator;
 import view.View;
 

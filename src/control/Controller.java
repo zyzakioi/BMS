@@ -6,7 +6,6 @@ import config.Tables;
 import exceptions.BMSException;
 import model.Admin;
 import model.Attendee;
-import utils.InputUtils;
 import utils.SecurityUtils;
 import view.View;
 
@@ -54,6 +53,7 @@ public class Controller {
                 default -> View.displayBadInput("{1, 2, 3, 4}", op);
             }
         }
+        db.close();
     }
 
     private void initAttendee() throws SQLException{
@@ -85,9 +85,9 @@ public class Controller {
     private void initRegister() throws SQLException{
         Attr ID = AttendeeAttr.EMAIL;
         String[] finalVals = new String[9];
+        finalVals[1] = ID.inputUniqueVal();
         finalVals[0] = ++attendeeNum + "";
-        finalVals[1] = ID.inputNewVal();
-        char[] rawPasswd = getPasswd("Password");
+        char[] rawPasswd = getNewPasswd("Password");
         finalVals[2] = SecurityUtils.toHash(rawPasswd);
         Attr[] infos = Arrays.copyOfRange(AttendeeAttr.values(), 3, 9);
         String[] infoVals = Attr.inputNewVals(infos);
@@ -108,6 +108,4 @@ public class Controller {
             View.displayError(e.getMessage());
         }
     }
-
-
 }
