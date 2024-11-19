@@ -40,13 +40,22 @@ public class View {
 
     public static void displayTable(String[] header, ArrayList<String[]> rows){
         System.out.println();
-        for (String s : header) {
-            System.out.print(s + "\t");
+        int[] mx = new int[header.length];
+        for (int i = 0; i < header.length; i++) {
+            mx[i] = header[i].length();
+        }
+        for (String[] row : rows) {
+            for (int i = 0; i < row.length; i++) {
+                mx[i] = Math.max(mx[i], row[i].length());
+            }
+        }
+        for (int i = 0; i < header.length; i++) {
+            System.out.printf("%-" + mx[i] + "s  ", header[i]);
         }
         System.out.println();
         for (String[] row : rows) {
-            for (String s : row) {
-                System.out.print(s + "\t");
+            for (int i = 0; i < row.length; i++) {
+                System.out.printf("%-" + mx[i] + "s  ", row[i]);
             }
             System.out.println();
         }

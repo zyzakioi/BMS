@@ -197,7 +197,7 @@ class AdminMenuAttendee implements Menu {
                     case 0 -> { return;}
                     case 1 -> updateAttendee(banquetID);
                     case 2 -> unregisterAttendee(banquetID);
-                    case 3 -> viewAttendees();
+                    case 3 -> viewAttendees(banquetID);
                     default -> View.displayBadInput("Single digit 1~3", op);
                 }
             } catch (BMSException e) {
@@ -242,22 +242,27 @@ class AdminMenuAttendee implements Menu {
         rs.close();
     }
 
-    private static void viewAttendees() throws SQLException{
-        String[] columns = Attr.getColumns(AttendeeAttr.values());
+    private static void viewAttendees(String BIN) throws SQLException{
+        String[] columns = Attr.getColumns(RegistrationAttr.values()), descriptions = Attr.getDescriptions(RegistrationAttr.values());
         ArrayList<String[]> rows = new ArrayList<>();
         int colNum = columns.length;
 
-        try(ResultSet rs = Tables.REGISTRATION.query(columns, "", new String[]{})) {
+        try(ResultSet rs = Tables.REGISTRATION.query(columns, "BIN = ?", new String[]{BIN})) {
             String[] row = new String[colNum];
             while (rs.next()) {
-                for (int i = 0; i < colNum; i++)
-                    row[i] = rs.getString(columns[i]);
+                try(ResultSet trs = Tables.ATTENDEE.query(new String[]{AttendeeAttr.EMAIL.getAttrName()}, AttendeeAttr.ATT_ID + " = ?", new String[]{rs.getString(2)})) {
+                    trs.next();
+                    row[0] = trs.getString(1);
+                }
+                for (int i = 1; i < colNum; i++) {
+                        row[i] = rs.getString(columns[i]);
+                }
                 rows.add(row);
             }
         }
 
         if (rows.isEmpty()) View.displayMessage("No attendee available");
-        else View.displayTable(columns, rows);
+        else View.displayTable(descriptions, rows);
     }
 }
 

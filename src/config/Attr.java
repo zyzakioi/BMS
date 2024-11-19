@@ -132,6 +132,13 @@ public interface Attr {
     static String[] getColumns(Attr[] attrs) {
         String[] res = new String[attrs.length];
         for (int i = 0; i < attrs.length; i++)
+            res[i] = attrs[i].getAttrName();
+        return res;
+    }
+
+    static String[] getDescriptions(Attr[] attrs) {
+        String[] res = new String[attrs.length];
+        for (int i = 0; i < attrs.length; i++)
             res[i] = attrs[i].getDescription();
         return res;
     }

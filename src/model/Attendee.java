@@ -46,7 +46,7 @@ class AttendeeMainMenu implements Menu {
 
     AttendeeMainMenu(int ID) {
         menu1 = new UpdateInfo(ID);
-        menu2 = new ShowBanquets();
+        menu2 = new ShowBanquets(ID);
         menu3 = new SignUp(ID);
     }
 
@@ -185,14 +185,16 @@ class SignUp implements Menu {
 }
 
 class ShowBanquets implements Menu {
+    private final int ID;
+    ShowBanquets(int ID) {this.ID = ID;}
     public void start() throws SQLException {
         String[] header = {"BIN","Name","Date","Time"};
         ArrayList<String[]> rows = new ArrayList<>();
         int colNum = header.length;
 
         String[] columns = new String[]{};
-        String conditionClause = BanquetAttr.AVAILABILITY.getAttrName() + " = ? AND Quota > ?";
-        String[] conditionVals = new String[]{"1","0"};
+        String conditionClause = BanquetAttr.AVAILABILITY.getAttrName() + " = ? AND " + BanquetAttr.QUOTA.getAttrName() + "> ? AND NOT EXISTS (SELECT * FROM Registration WHERE Registration.BIN = Banquet.BIN AND Registration.Att_ID = ?)";
+        String[] conditionVals = new String[]{"1","0", Integer.toString(ID)};
 
         try(ResultSet rs = Tables.BANQUET.query(columns, conditionClause, conditionVals)) {
             while (rs.next()) {
