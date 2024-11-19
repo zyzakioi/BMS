@@ -235,10 +235,11 @@ class AdminMenuAttendee implements Menu {
         }
         Tables.REGISTRATION.delete(conditions);
         View.displayMessage("Attendee ID \"" + ID + "\" has been unregistered");
-        BanquetAttr.QUOTA.updateTo("Quota + 1", BanquetAttr.BIN + " = " + banquetID);
-        rs = Tables.BANQUET.query(new String[]{BanquetAttr.QUOTA.getAttrName()}, BanquetAttr.BIN + " = ?", new String[]{banquetID});
+        rs = Tables.BANQUET.query(new String[]{BanquetAttr.QUOTA.getAttrName()}, BanquetAttr.BIN.getAttrName() + " = ?", new String[]{banquetID});
         rs.next();
-        if(rs.getInt(1) > 0) BanquetAttr.AVAILABILITY.updateTo("1", BanquetAttr.BIN + " = " + banquetID);
+        int quota = rs.getInt(1);
+        BanquetAttr.QUOTA.updateTo(String.valueOf(quota + 1), BanquetAttr.BIN + " = " + banquetID);
+        if(quota == 0) BanquetAttr.AVAILABILITY.updateTo("1", BanquetAttr.BIN + " = " + banquetID);
         rs.close();
     }
 
@@ -255,7 +256,7 @@ class AdminMenuAttendee implements Menu {
                     row[0] = trs.getString(1);
                 }
                 for (int i = 1; i < colNum; i++) {
-                        row[i] = rs.getString(columns[i]);
+                    row[i] = rs.getString(columns[i]);
                 }
                 rows.add(row);
             }
