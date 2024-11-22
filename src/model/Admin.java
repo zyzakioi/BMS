@@ -1,15 +1,20 @@
 package model;
 
+import com.itextpdf.io.font.constants.StandardFonts;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.properties.TextAlignment;
 import config.*;
 import control.Controller;
 import exceptions.BMSException;
 import utils.SecurityUtils;
 import view.View;
 
-import java.io.File;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -61,7 +66,7 @@ class AdminMainMenu implements Menu {
     static Menu menu5;
     static Menu menu6;
     private static final Menu menu7 = new NewAdmin();
-    private static final Menu menu8 = new genReport();
+    private static final Menu menu8 = new GenReport();
 
     AdminMainMenu(int ID) {
         menu5 = new UpdateEmail(ID);
@@ -237,11 +242,11 @@ class AdminMenuAttendee implements Menu {
         ResultSet rs = db.executeQuery("SELECT COUNT(*) FROM Registration WHERE " + conditions);
         rs.next();
         if (rs.getInt(1) == 0) {
-            View.displayError("Attendee ID \"" + ID + "\" is not registered");
+            View.displayError("Attendee ID \"" + email + "\" is not registered");
             return;
         }
         Tables.REGISTRATION.delete(conditions);
-        View.displayMessage("Attendee ID \"" + ID + "\" has been unregistered");
+        View.displayMessage("Attendee ID \"" + email + "\" has been unregistered");
         rs = Tables.BANQUET.query(new String[]{BanquetAttr.QUOTA.getAttrName()}, BanquetAttr.BIN.getAttrName() + " = ?", new String[]{banquetID});
         rs.next();
         int quota = rs.getInt(1);
@@ -256,9 +261,9 @@ class AdminMenuAttendee implements Menu {
         int colNum = columns.length;
 
         try(ResultSet rs = Tables.REGISTRATION.query(columns, "BIN = ?", new String[]{BIN})) {
-            String[] row = new String[colNum];
             while (rs.next()) {
-                try(ResultSet trs = Tables.ATTENDEE.query(new String[]{AttendeeAttr.EMAIL.getAttrName()}, AttendeeAttr.ATT_ID + " = ?", new String[]{rs.getString(2)})) {
+                String[] row = new String[colNum];
+                try(ResultSet trs = Tables.ATTENDEE.query(new String[]{AttendeeAttr.EMAIL.getAttrName()}, AttendeeAttr.ATT_ID + " = ?", new String[]{rs.getString(columns[0])})) {
                     trs.next();
                     row[0] = trs.getString(1);
                 }
@@ -355,19 +360,29 @@ class NewAdmin implements Menu {
     }
 }
 
-class genReport implements Menu {
+class GenReport implements Menu {
     public void start() throws SQLException {
         String file_name = getStr("Input the name of the report file: ");
-        if(!file_name.endsWith(".pdf")) file_name += ".pdf";
-        try{
+        if (!file_name.endsWith(".pdf")) file_name += ".pdf";
+        Document document = null;
+        try {
             PdfDocument pdf = new PdfDocument(new PdfWriter(file_name));
-            Document document = new Document(pdf);
-            document.add(new com.itextpdf.layout.element.Paragraph("Banquet Management System Report"));
-            document.add(new com.itextpdf.layout.element.Paragraph("Banquet Information"));
-            document.add(new com.itextpdf.layout.element.Paragraph("Attendee Information"));
-            document.close();
+            document = new Document(pdf);
         } catch (Exception e) {
             View.displayError(e.getMessage());
         }
+        PdfFont titleF;
+        try {
+            titleF = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        Paragraph title = new Paragraph("BMS Analysis Report");
+        title.setFont(titleF);
+        title.setFontSize(20);
+        title.setTextAlignment(TextAlignment.CENTER);
+        assert document != null;
+        document.add(title);
+        document.close();
     }
 }
