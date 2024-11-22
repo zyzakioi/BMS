@@ -1,11 +1,15 @@
 package model;
 
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
 import config.*;
 import control.Controller;
 import exceptions.BMSException;
 import utils.SecurityUtils;
 import view.View;
 
+import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -57,6 +61,7 @@ class AdminMainMenu implements Menu {
     static Menu menu5;
     static Menu menu6;
     private static final Menu menu7 = new NewAdmin();
+    private static final Menu menu8 = new genReport();
 
     AdminMainMenu(int ID) {
         menu5 = new UpdateEmail(ID);
@@ -73,6 +78,7 @@ class AdminMainMenu implements Menu {
                 5. Change Email
                 6. Change Password
                 7. Add New Admin
+                8. Generate Report
                 0. Logout
                 """;
         while (true) {
@@ -86,6 +92,7 @@ class AdminMainMenu implements Menu {
                 case 5 -> menu5.start();
                 case 6 -> menu6.start();
                 case 7 -> menu7.start();
+                case 8 -> menu8.start();
                 case 0 -> { return; }
                 default -> View.displayBadInput("Single digit 1~6", op);
             }
@@ -343,6 +350,23 @@ class NewAdmin implements Menu {
             Tables.ADMIN.insert(Integer.toString(++Controller.adminNum),email, hashPw);
             View.displayMessage("Admin Added");
         } catch (BMSException e) {
+            View.displayError(e.getMessage());
+        }
+    }
+}
+
+class genReport implements Menu {
+    public void start() throws SQLException {
+        String file_name = getStr("Input the name of the report file: ");
+        if(!file_name.endsWith(".pdf")) file_name += ".pdf";
+        try{
+            PdfDocument pdf = new PdfDocument(new PdfWriter(file_name));
+            Document document = new Document(pdf);
+            document.add(new com.itextpdf.layout.element.Paragraph("Banquet Management System Report"));
+            document.add(new com.itextpdf.layout.element.Paragraph("Banquet Information"));
+            document.add(new com.itextpdf.layout.element.Paragraph("Attendee Information"));
+            document.close();
+        } catch (Exception e) {
             View.displayError(e.getMessage());
         }
     }
