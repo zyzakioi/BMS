@@ -7,9 +7,9 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import config.*;
-import control.Controller;
 import exceptions.BMSException;
 import utils.SecurityUtils;
 import view.View;
@@ -20,8 +20,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static control.Controller.db;
-import static control.Controller.sc;
+import static control.Controller.*;
 import static utils.InputUtils.*;
 
 public class Admin implements User {
@@ -352,7 +351,7 @@ class NewAdmin implements Menu {
         char[] rawPw = getNewPasswd("Password");
         String hashPw = SecurityUtils.toHash(rawPw);
         try {
-            Tables.ADMIN.insert(Integer.toString(++Controller.adminNum),email, hashPw);
+            Tables.ADMIN.insert(Integer.toString(++adminNum),email, hashPw);
             View.displayMessage("Admin Added");
         } catch (BMSException e) {
             View.displayError(e.getMessage());
@@ -361,10 +360,10 @@ class NewAdmin implements Menu {
 }
 
 class GenReport implements Menu {
-    public void start() throws SQLException {
+    Document document = null;
+    public void start(){
         String file_name = getStr("Input the name of the report file: ");
         if (!file_name.endsWith(".pdf")) file_name += ".pdf";
-        Document document = null;
         try {
             PdfDocument pdf = new PdfDocument(new PdfWriter(file_name));
             document = new Document(pdf);
@@ -383,6 +382,153 @@ class GenReport implements Menu {
         title.setTextAlignment(TextAlignment.CENTER);
         assert document != null;
         document.add(title);
+        addBanquet();
+        addAttendee();
         document.close();
+    }
+    private void addBanquet(){
+        Paragraph subtitle = new Paragraph("Banquet Information:");
+        PdfFont titleF;
+        try {
+            titleF = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        subtitle.setFont(titleF);
+        subtitle.setFontSize(16);
+        subtitle.setTextAlignment(TextAlignment.LEFT);
+        document.add(subtitle);
+        Table table = new Table(5);
+        table.addHeaderCell("BIN");
+        table.addHeaderCell("Name");
+        table.addHeaderCell("Register Ratio");
+        table.addHeaderCell("Attend Ratio");
+        table.addHeaderCell("Best Meal");
+        for(int i = 1; i <= banquetNum; ++i){
+            table.addCell(String.valueOf(i));
+            int quota, regNum, attNum;
+            String name;
+            try{
+                ResultSet rs = Tables.BANQUET.query(new String[]{BanquetAttr.BANQUET_NAME.getAttrName(), BanquetAttr.QUOTA.getAttrName()}, BanquetAttr.BIN.getAttrName() + " = ?", new String[]{String.valueOf(i)});
+                rs.next();
+                name = rs.getString(1);
+                quota = rs.getInt(2);
+                rs = db.executeQuery("SELECT COUNT(*) FROM Registration WHERE BIN = " + i);
+                rs.next();
+                regNum = rs.getInt(1);
+                rs = db.executeQuery("SELECT COUNT(*) FROM Registration WHERE BIN = " + i + " AND Attendance = 1");
+                rs.next();
+                attNum = rs.getInt(1);
+                rs.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            table.addCell(name);
+            table.addCell(regNum + " / " + (regNum + quota));
+            table.addCell(attNum + " / " + regNum);
+            String[] meals = new String[4];
+            try {
+                ResultSet rs = Tables.MEAL.query(new String[]{MealAttr.DISH_NAME.getAttrName()}, MealAttr.BIN.getAttrName() + " = ?", new String[]{String.valueOf(i)});
+                for(int j = 0; j < 4; ++j){
+                    rs.next();
+                    meals[j] = rs.getString(1);
+                }
+                rs.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            String bestMeal = meals[0];
+            int bestNum;
+            try(ResultSet rs = db.executeQuery("SELECT COUNT(*) FROM Registration WHERE BIN = " + i + " AND Dish_name = \"" + meals[0] + "\"")){
+                rs.next();
+                bestNum = rs.getInt(1);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            for(int j = 1;j < 4; ++j){
+                int num;
+                try(ResultSet rs = db.executeQuery("SELECT COUNT(*) FROM Registration WHERE BIN = " + i + " AND Dish_name = \"" + meals[j] + "\"")){
+                    rs.next();
+                    num = rs.getInt(1);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                if(num > bestNum){
+                    bestNum = num;
+                    bestMeal = meals[j];
+                }
+            }
+            table.addCell(bestMeal);
+        }
+        document.add(table);
+    }
+    private void addAttendee(){
+        Paragraph subtitle = new Paragraph("Attendee Information:");
+        PdfFont titleF;
+        try {
+            titleF = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        subtitle.setFont(titleF);
+        subtitle.setFontSize(16);
+        subtitle.setTextAlignment(TextAlignment.LEFT);
+        document.add(subtitle);
+        Table table = new Table(5);
+        table.addHeaderCell("ID");
+        table.addHeaderCell("Name");
+        table.addHeaderCell("Email");
+        table.addHeaderCell("Attend Ratio");
+        table.addHeaderCell("Favorite Meal");
+        for(int i = 1; i <= attendeeNum; ++i){
+            table.addCell(String.valueOf(i));
+            String name, email;
+            try{
+                ResultSet rs = Tables.ATTENDEE.query(new String[]{AttendeeAttr.FIRST_NAME.getAttrName(), AttendeeAttr.LAST_NAME.getAttrName(), AttendeeAttr.EMAIL.getAttrName()}, AttendeeAttr.ATT_ID.getAttrName() + " = ?", new String[]{String.valueOf(i)});
+                rs.next();
+                name = rs.getString(1) + " " + rs.getString(2);
+                email = rs.getString(3);
+                rs.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            table.addCell(name);
+            table.addCell(email);
+            int regNum,attNum;
+            try{
+                ResultSet rs = db.executeQuery("SELECT COUNT(*) FROM Registration WHERE Att_ID = " + i);
+                rs.next();
+                regNum = rs.getInt(1);
+                rs = db.executeQuery("SELECT COUNT(*) FROM Registration WHERE Att_ID = " + i + " AND Attendance = 1");
+                rs.next();
+                attNum = rs.getInt(1);
+                rs.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            table.addCell(attNum + " / " + regNum);
+            String favMeal = "";
+            int favNum = 0;
+            try{
+                ResultSet rs = db.executeQuery("SELECT DISTINCT Dish_name FROM Registration WHERE Att_ID = " + i);
+                while(rs.next()){
+                    String meal = rs.getString(1);
+                    int num;
+                    try(ResultSet trs = db.executeQuery("SELECT COUNT(*) FROM Registration WHERE Att_ID = " + i + " AND Dish_name = \"" + meal + "\"")){
+                        trs.next();
+                        num = trs.getInt(1);
+                    }
+                    if(num > favNum){
+                        favNum = num;
+                        favMeal = meal;
+                    }
+                }
+                rs.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            table.addCell(favMeal);
+        }
+        document.add(table);
     }
 }
