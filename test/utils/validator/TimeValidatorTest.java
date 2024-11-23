@@ -1,14 +1,14 @@
 package utils.validator;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
-class TestTimeValidator {
+public class TimeValidatorTest {
     private static final TimeValidator tv = new TimeValidator();
 
     @Test
-    void testEval() {
+    public void testEval() {
         // Valid times
         assertTrue(tv.eval("00:00:00"));
         assertTrue(tv.eval("12:30:45"));

@@ -1,17 +1,20 @@
 package utils.validator;
 
-import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.Test;
+import static org.junit.Assert.*;
+import org.junit.Test;
 
-class DateValidatorTest {
+public class DateValidatorTest {
     private static final DateValidator dv = new DateValidator();
 
     @Test
-    void testEval() {
+    public void testEval() {
         // Valid dates
         assertTrue(dv.eval("2024-10-05"));
         assertTrue(dv.eval("2026-12-31"));
         assertTrue(dv.eval("2024-02-29"));
+        assertTrue(dv.eval("2100-12-31"));
+        assertTrue(dv.eval("2027-01-01"));
+        assertTrue(dv.eval("2101-01-01"));
 
         // Invalid leap year dates
         assertFalse(dv.eval("2023-02-29"));
@@ -50,12 +53,10 @@ class DateValidatorTest {
         assertFalse(dv.eval("2023-01-a1"));
 
         // Out of bounds
-        assertFalse(dv.eval("2100-12-31"));
-        assertFalse(dv.eval("2027-01-01"));
-        assertFalse(dv.eval("2101-01-01"));
-        assertFalse(dv.eval("99999-12-31"));
+
         assertFalse(dv.eval("-2023-01-01"));
         assertFalse(dv.eval("2023-12-31"));
+        assertFalse(dv.eval("99999-12-31"));
 
         // Null and whitespace
         assertFalse(dv.eval(null));

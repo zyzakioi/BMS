@@ -1,14 +1,14 @@
 package utils;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.util.HashSet;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
-class SecurityUtilsTest {
+public class SecurityUtilsTest {
     @Test
-    void testToHash() {
+    public void testToHash() {
         char[] password = "Login123".toCharArray();
         for (int i = 0; i < 3; i++) {
             String hashed = SecurityUtils.toHash(password);
@@ -17,7 +17,7 @@ class SecurityUtilsTest {
     }
 
     @Test
-    void testUniqueHash() {
+    public void testUniqueHash() {
         char[] password = "AdminPassword123".toCharArray();
         HashSet<String> used = new HashSet<>();
         for (int i = 0; i < 50; i++) {
@@ -29,7 +29,7 @@ class SecurityUtilsTest {
     }
 
     @Test
-    void testDecode() {
+    public void testDecode() {
         char[] badPasswd = "goodbye_world".toCharArray();
         char[] passwd = "hello_world".toCharArray();
         for (int i = 0; i < 10; i++) {
@@ -40,7 +40,7 @@ class SecurityUtilsTest {
     }
 
     @Test
-    void testSpecial() {
+    public void testSpecial() {
         String hash = "nPb8zO4cL6v/Ps9qTSRzrQ==:z3qJAeL9hGVeuj5rmmOwDmcUVuDC4t+mjlUANPgJq3s=";
         char[] passwd = "Login123".toCharArray();
         assertTrue(SecurityUtils.checkPasswd(passwd, hash));

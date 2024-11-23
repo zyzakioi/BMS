@@ -19,9 +19,10 @@ import static utils.InputUtils.*;
 
 public class Controller {
     public static final Scanner sc = new Scanner(System.in);
-    public static final DBConnect db = new DBConnect();
+    public static DBConnect db;
     public static int banquetNum, adminNum, attendeeNum;
-    public void init() throws SQLException {
+    public void init(String url) throws SQLException {
+        db = new DBConnect(url);
         String options = """
                 1. Attendee
                 2. Administrator

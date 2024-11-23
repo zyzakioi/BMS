@@ -10,7 +10,13 @@ public class TimeValidator implements Validator {
             String[] strs = str.split(":");
             int[] parts = new int[strs.length];
             for (int i = 0; i < strs.length; i++) {
-                parts[i] = Integer.parseInt(strs[i]);
+                if(strs[i].length() != 2) return false;
+                try{
+                    parts[i] = Integer.parseInt(strs[i]);
+                }
+                catch (NumberFormatException e) {
+                    return false;
+                }
             }
             return parts.length == 3 && parts[0] >= 0 && parts[0] <= 23 && parts[1] >= 0 && parts[1] <= 59 && parts[2] >= 0 && parts[2] <= 59;
         } catch (DateTimeParseException e) {

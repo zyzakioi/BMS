@@ -10,12 +10,11 @@ import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.RowSetProvider;
 
 public class DBConnect {
-    private final static String url = "jdbc:sqlite:test_file.db";
     //private final static String username = "system";
     //private final static String passwd = "oracledb";
-    private final static SQLiteConnection connection;
+    private static SQLiteConnection connection = null;
 
-    static {
+    DBConnect(String url) {
         try {
             connection = (SQLiteConnection) DriverManager.getConnection(url);
             System.out.println("Connected.");
