@@ -150,12 +150,8 @@ class SignUp implements Menu {
                 return;
             }
         }
-        try(ResultSet rs = Tables.MEAL.query(new String[]{MealAttr.DISH_NAME.getAttrName()}, MealAttr.BIN.getAttrName() + " = ?", new String[]{banquetID})) {
-            View.displayMessage("Available meals:");
-            while(rs.next()){
-                View.displayMessage(rs.getString(1));
-            }
-        }
+        View.displayMessage("Available meals:");
+        AdminEditBanquet.showMeals(banquetID);
         String mealID = MealAttr.DISH_NAME.inputHasVal();
         conditionVals = new String[]{banquetID, mealID};
         conditionClause = RegistrationAttr.BIN + " = ? AND " + RegistrationAttr.DISH_NAME + " = ?";

@@ -113,6 +113,7 @@ class AdminEditBanquet implements Menu {
                 1. Update Banquet
                 2. Update Meal
                 3. Take Attendance
+                4. Show Meals
                 0. Go back
                 """;
 
@@ -125,6 +126,7 @@ class AdminEditBanquet implements Menu {
                     case 1 -> updateBanquet(banquetID);
                     case 2 -> updateMeal(banquetID);
                     case 3 -> takeAttendance(banquetID);
+                    case 4 -> showMeals(banquetID);
                     case 0 -> isRunning = false;
                 }
             } catch (BMSException e) {
@@ -185,6 +187,28 @@ class AdminEditBanquet implements Menu {
                 RegistrationAttr.ATT_ID, ID
         );
         RegistrationAttr.ATTENDANCE.updateTo("1", condition);
+    }
+
+    public static void showMeals(String banquetID){
+        String[] columns = new String[]{MealAttr.DISH_NAME.getAttrName(), MealAttr.TYPE.getAttrName(), MealAttr.CUISINE.getAttrName(), MealAttr.PRICE.getAttrName()};
+        String[] descriptions = new String[]{MealAttr.DISH_NAME.getDescription(), MealAttr.TYPE.getDescription(), MealAttr.CUISINE.getDescription(), MealAttr.PRICE.getDescription()};
+        ArrayList<String[]> rows = new ArrayList<>();
+        int colNum = columns.length;
+
+        try(ResultSet rs = Tables.MEAL.query(columns, MealAttr.BIN + " = ?", new String[]{banquetID})) {
+            while (rs.next()) {
+                String[] row = new String[colNum];
+                for (int i = 0; i < colNum; i++) {
+                    row[i] = rs.getString(i + 1);
+                }
+                rows.add(row);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (rows.isEmpty()) View.displayMessage("No meal available");
+        else View.displayTable(descriptions, rows);
     }
 }
 

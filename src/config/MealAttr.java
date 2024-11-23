@@ -6,15 +6,15 @@ import view.View;
 import java.util.HashSet;
 
 public enum MealAttr implements Attr{
+    DISH_NAME("Dish_name", "Dish name", new NameValidator()),
     BIN(
             BanquetAttr.BIN.getAttrName(),
             BanquetAttr.BIN.getDescription(),
             BanquetAttr.BIN.getValidator()
     ),
-    DISH_NAME("Dish_name", "Dish name", new NameValidator()),
+    TYPE("Type", "Type", new NameValidator()),
     CUISINE("Cuisine", "Cuisine", new NameValidator()),
-    PRICE("Price", "Price", new IntValidator()),
-    TYPE("Type", "Type", new NameValidator()),;
+    PRICE("Price", "Price", new IntValidator());
 
     private final String attrName;
     public final String description; // user friendly description

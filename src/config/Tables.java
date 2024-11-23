@@ -69,7 +69,14 @@ public enum Tables {
     public void insert(String... vals) throws SQLException, BMSException {
         if (hasEntry(vals)) throw new BMSException("Entry already exists");
         StringBuilder sql = new StringBuilder("INSERT INTO ");
-        sql.append(tableName).append(" VALUES (");
+        sql.append(tableName);
+        Attr[] attrs = tableAttr.getEnumConstants();
+        sql.append(" (");
+        for (int i = 0; i < attrs.length; i++) {
+            sql.append(attrs[i].getAttrName());
+            if (i < attrs.length - 1) sql.append(", ");
+        }
+        sql.append(") VALUES (");
         for (int i = 0; i < vals.length; i++) {
             sql.append("?");
             if (i < vals.length - 1) sql.append(", ");
