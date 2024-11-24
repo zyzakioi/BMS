@@ -307,8 +307,8 @@ class AdminNewBanquet implements Menu {
     public void start() throws SQLException{
         try {
             String[] vals = Attr.inputNewVals(BanquetAttr.values());
-            Tables.BANQUET.insert(vals);
             String[][] mealSet = MealAttr.getValidMealSet(vals[0]);
+            Tables.BANQUET.insert(vals);
             for (String[] meal : mealSet) Tables.MEAL.insert(meal);
         } catch (BMSException e) {
             // should not exist since BIN is auto-generated and guaranteed to be unique
