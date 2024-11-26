@@ -6,9 +6,13 @@ import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
+import com.itextpdf.layout.properties.VerticalAlignment;
+import com.itextpdf.styledxmlparser.jsoup.nodes.Element;
 import config.*;
 import exceptions.BMSException;
 import utils.SecurityUtils;
@@ -423,15 +427,15 @@ class GenReport implements Menu {
         subtitle.setTextAlignment(TextAlignment.LEFT);
         document.add(subtitle);
         Table table = new Table(6);
-        table.addHeaderCell("BIN");
-        table.addHeaderCell("Name");
-        table.addHeaderCell("Register Ratio");
-        table.addHeaderCell("Attend Ratio");
-        table.addHeaderCell("Best Meal");
-        table.addHeaderCell("Total Price");
+        table.addHeaderCell(new Cell().add(new Paragraph("BIN")).setTextAlignment(TextAlignment.CENTER));
+        table.addHeaderCell(new Cell().add(new Paragraph("Name")).setTextAlignment(TextAlignment.CENTER));
+        table.addHeaderCell(new Cell().add(new Paragraph("Registration Ratio")).setTextAlignment(TextAlignment.CENTER));
+        table.addHeaderCell(new Cell().add(new Paragraph("Attendance Ratio")).setTextAlignment(TextAlignment.CENTER));
+        table.addHeaderCell(new Cell().add(new Paragraph("Best Meal")).setTextAlignment(TextAlignment.CENTER));
+        table.addHeaderCell(new Cell().add(new Paragraph("Total Price")).setTextAlignment(TextAlignment.CENTER));
 
         for(int i = 1; i <= banquetNum; ++i){
-            table.addCell(String.valueOf(i));
+            table.addCell(new Cell().add(new Paragraph(String.valueOf(i))).setTextAlignment(TextAlignment.CENTER));
             int quota, regNum, attNum;
             String name;
             try{
@@ -449,9 +453,9 @@ class GenReport implements Menu {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-            table.addCell(name);
-            table.addCell(regNum + " / " + (regNum + quota));
-            table.addCell(attNum + " / " + regNum);
+            table.addCell(new Cell().add(new Paragraph(name)).setTextAlignment(TextAlignment.CENTER));
+            table.addCell(new Cell().add(new Paragraph(attNum + " / " + quota)).setTextAlignment(TextAlignment.CENTER));
+            table.addCell(new Cell().add(new Paragraph(attNum + " / " + regNum)).setTextAlignment(TextAlignment.CENTER));
             String[] meals = new String[4];
             int[] prices = new int[4], cnt = new int[4];
             try {
@@ -496,13 +500,15 @@ class GenReport implements Menu {
                     bestMeal = meals[j];
                 }
             }
-            table.addCell(bestMeal);
+            table.addCell(new Cell().add(new Paragraph(bestMeal)).setTextAlignment(TextAlignment.CENTER));
             int total = 0;
             for(int j = 0; j < 4; ++j){
                 total += prices[j] * cnt[j];
             }
-            table.addCell(String.valueOf(total));
+            table.addCell(new Cell().add(new Paragraph(String.valueOf(total))).setTextAlignment(TextAlignment.CENTER));
         }
+        table.setVerticalAlignment(VerticalAlignment.MIDDLE);
+        table.setHorizontalAlignment(HorizontalAlignment.CENTER);
         document.add(table);
     }
     private void addAttendee(){
@@ -518,14 +524,14 @@ class GenReport implements Menu {
         subtitle.setTextAlignment(TextAlignment.LEFT);
         document.add(subtitle);
         Table table = new Table(6);
-        table.addHeaderCell("ID");
-        table.addHeaderCell("Name");
-        table.addHeaderCell("Email");
-        table.addHeaderCell("Attend Ratio");
-        table.addHeaderCell("Favorite Meal");
-        table.addHeaderCell("Total Price");
+        table.addHeaderCell(new Cell().add(new Paragraph("ID")).setTextAlignment(TextAlignment.CENTER));
+        table.addHeaderCell(new Cell().add(new Paragraph("Name")).setTextAlignment(TextAlignment.CENTER));
+        table.addHeaderCell(new Cell().add(new Paragraph("Email")).setTextAlignment(TextAlignment.CENTER));
+        table.addHeaderCell(new Cell().add(new Paragraph("Attendance Ratio")).setTextAlignment(TextAlignment.CENTER));
+        table.addHeaderCell(new Cell().add(new Paragraph("Favorite Meal")).setTextAlignment(TextAlignment.CENTER));
+        table.addHeaderCell(new Cell().add(new Paragraph("Total Price")).setTextAlignment(TextAlignment.CENTER));
         for(int i = 1; i <= attendeeNum; ++i){
-            table.addCell(String.valueOf(i));
+            table.addCell(new Cell().add(new Paragraph(String.valueOf(i))).setTextAlignment(TextAlignment.CENTER));
             String name, email;
             try{
                 ResultSet rs = Tables.ATTENDEE.query(new String[]{AttendeeAttr.FIRST_NAME.getAttrName(), AttendeeAttr.LAST_NAME.getAttrName(), AttendeeAttr.EMAIL.getAttrName()}, AttendeeAttr.ATT_ID.getAttrName() + " = ?", new String[]{String.valueOf(i)});
@@ -536,8 +542,8 @@ class GenReport implements Menu {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-            table.addCell(name);
-            table.addCell(email);
+            table.addCell(new Cell().add(new Paragraph(name)).setTextAlignment(TextAlignment.CENTER));
+            table.addCell(new Cell().add(new Paragraph(email)).setTextAlignment(TextAlignment.CENTER));
             int regNum,attNum;
             try{
                 ResultSet rs = db.executeQuery("SELECT COUNT(*) FROM Registration WHERE Att_ID = " + i);
@@ -550,7 +556,7 @@ class GenReport implements Menu {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-            table.addCell(attNum + " / " + regNum);
+            table.addCell(new Cell().add(new Paragraph(attNum + " / " + regNum)).setTextAlignment(TextAlignment.CENTER));
             String favMeal = "";
             int favNum = 0;
             try{
@@ -571,7 +577,7 @@ class GenReport implements Menu {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-            table.addCell(favMeal);
+            table.addCell(new Cell().add(new Paragraph(favMeal)).setTextAlignment(TextAlignment.CENTER));
             try{
                 ResultSet rs = db.executeQuery("SELECT BIN,Dish_name FROM Registration WHERE Att_ID = " + i);
                 int total = 0;
@@ -583,12 +589,14 @@ class GenReport implements Menu {
                         total += trs.getInt(1);
                     }
                 }
-                table.addCell(String.valueOf(total));
+                table.addCell(new Cell().add(new Paragraph(String.valueOf(total))).setTextAlignment(TextAlignment.CENTER));
             }
             catch (SQLException e) {
                 throw new RuntimeException(e);
             }
         }
+        table.setVerticalAlignment(VerticalAlignment.MIDDLE);
+        table.setHorizontalAlignment(HorizontalAlignment.CENTER);
         document.add(table);
     }
 }
