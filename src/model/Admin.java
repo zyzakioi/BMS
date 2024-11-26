@@ -422,12 +422,14 @@ class GenReport implements Menu {
         subtitle.setFontSize(16);
         subtitle.setTextAlignment(TextAlignment.LEFT);
         document.add(subtitle);
-        Table table = new Table(5);
+        Table table = new Table(6);
         table.addHeaderCell("BIN");
         table.addHeaderCell("Name");
         table.addHeaderCell("Register Ratio");
         table.addHeaderCell("Attend Ratio");
         table.addHeaderCell("Best Meal");
+        table.addHeaderCell("Total Price");
+
         for(int i = 1; i <= banquetNum; ++i){
             table.addCell(String.valueOf(i));
             int quota, regNum, attNum;
@@ -451,6 +453,7 @@ class GenReport implements Menu {
             table.addCell(regNum + " / " + (regNum + quota));
             table.addCell(attNum + " / " + regNum);
             String[] meals = new String[4];
+            int[] prices = new int[4], cnt = new int[4];
             try {
                 ResultSet rs = Tables.MEAL.query(new String[]{MealAttr.DISH_NAME.getAttrName()}, MealAttr.BIN.getAttrName() + " = ?", new String[]{String.valueOf(i)});
                 for(int j = 0; j < 4; ++j){
@@ -463,17 +466,28 @@ class GenReport implements Menu {
             }
             String bestMeal = meals[0];
             int bestNum;
-            try(ResultSet rs = db.executeQuery("SELECT COUNT(*) FROM Registration WHERE BIN = " + i + " AND Dish_name = \"" + meals[0] + "\"")){
+            try{
+                ResultSet rs = db.executeQuery("SELECT COUNT(*) FROM Registration WHERE BIN = " + i + " AND Dish_name = \"" + meals[0] + "\"");
                 rs.next();
                 bestNum = rs.getInt(1);
+                cnt[0] = bestNum;
+                rs = db.executeQuery("SELECT Price FROM Meal WHERE BIN = " + i + " AND Dish_name = \"" + meals[0] + "\"");
+                rs.next();
+                prices[0] = rs.getInt(1);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
             for(int j = 1;j < 4; ++j){
                 int num;
-                try(ResultSet rs = db.executeQuery("SELECT COUNT(*) FROM Registration WHERE BIN = " + i + " AND Dish_name = \"" + meals[j] + "\"")){
+                try{
+                    ResultSet rs = db.executeQuery("SELECT COUNT(*) FROM Registration WHERE BIN = " + i + " AND Dish_name = \"" + meals[j] + "\"");
                     rs.next();
                     num = rs.getInt(1);
+                    cnt[j] = num;
+                    rs = db.executeQuery("SELECT Price FROM Meal WHERE BIN = " + i + " AND Dish_name = \"" + meals[j] + "\"");
+                    rs.next();
+                    prices[j] = rs.getInt(1);
+                    rs.close();
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
@@ -483,6 +497,11 @@ class GenReport implements Menu {
                 }
             }
             table.addCell(bestMeal);
+            int total = 0;
+            for(int j = 0; j < 4; ++j){
+                total += prices[j] * cnt[j];
+            }
+            table.addCell(String.valueOf(total));
         }
         document.add(table);
     }
@@ -498,12 +517,13 @@ class GenReport implements Menu {
         subtitle.setFontSize(16);
         subtitle.setTextAlignment(TextAlignment.LEFT);
         document.add(subtitle);
-        Table table = new Table(5);
+        Table table = new Table(6);
         table.addHeaderCell("ID");
         table.addHeaderCell("Name");
         table.addHeaderCell("Email");
         table.addHeaderCell("Attend Ratio");
         table.addHeaderCell("Favorite Meal");
+        table.addHeaderCell("Total Price");
         for(int i = 1; i <= attendeeNum; ++i){
             table.addCell(String.valueOf(i));
             String name, email;
@@ -552,6 +572,22 @@ class GenReport implements Menu {
                 throw new RuntimeException(e);
             }
             table.addCell(favMeal);
+            try{
+                ResultSet rs = db.executeQuery("SELECT BIN,Dish_name FROM Registration WHERE Att_ID = " + i);
+                int total = 0;
+                while(rs.next()){
+                    int BIN = rs.getInt(1);
+                    String meal = rs.getString(2);
+                    try(ResultSet trs = db.executeQuery("SELECT Price FROM Meal WHERE BIN = " + BIN + " AND Dish_name = \"" + meal + "\"")){
+                        trs.next();
+                        total += trs.getInt(1);
+                    }
+                }
+                table.addCell(String.valueOf(total));
+            }
+            catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
         document.add(table);
     }
