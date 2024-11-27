@@ -407,7 +407,7 @@ class NewAdmin implements Menu {
 class GenReport implements Menu {
     Document document = null;
     public void start(){
-        String file_name = getStr("Input the name of the report file: ");
+        String file_name = getStr("Input the name of the report file");
         if (!file_name.endsWith(".pdf")) file_name += ".pdf";
         try {
             PdfDocument pdf = new PdfDocument(new PdfWriter(file_name));
