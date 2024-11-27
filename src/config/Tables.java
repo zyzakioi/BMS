@@ -59,7 +59,7 @@ public enum Tables {
     public void delete(String conditionClause, String[] conditionVals) throws SQLException {
         String sql = "DELETE FROM " + tableName;
         if (!conditionClause.isEmpty()) sql += " WHERE " + conditionClause;
-        db.executeUpdate(sql, new String[]{});
+        db.executeUpdate(sql, conditionVals);
     }
 
     /**

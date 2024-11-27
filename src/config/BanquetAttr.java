@@ -1,6 +1,5 @@
 package config;
 
-import exceptions.BMSException;
 import utils.validator.*;
 
 import java.sql.ResultSet;
