@@ -24,6 +24,6 @@ public class NameValidator implements Validator {
 
     @Override
     public String reason() {
-        return "Name must contain only alphabetic characters, at most 100 characters long, capitalized";
+        return "Name must contain only alphabetic characters, at most 20 characters long, capitalized";
     }
 }

@@ -19,16 +19,19 @@ public interface Attr {
     boolean isUpdatable();
 
     /**
-     *
-     * @param newVal the new value to set to
-     * @param conditions the conditions for SQL WHERE clause
+     * @param newVal          the new value to set to
+     * @param conditionClause the conditions for SQL WHERE clause
+     * @param conditionVals values to fill into the condition clause
      * @throws SQLException when unexpected SQL error occurs
      */
-    default void updateTo(String newVal, String conditions) throws SQLException {
+    default void updateTo(String newVal, String conditionClause, String[] conditionVals) throws SQLException {
         if (!isUpdatable()) throw new RuntimeException("Attribute " + getAttrName() + " not updatable");
         String sql = "UPDATE " + getTable() + " SET " + getAttrName() + " = ?";
-        if (!conditions.isEmpty()) sql += " WHERE " + conditions;
-        db.executeUpdate(sql, new String[]{newVal});
+        if (!conditionClause.isEmpty()) sql += " WHERE " + conditionClause;
+        String[] values = new String[1 + conditionVals.length];
+        values[0] = newVal;
+        System.arraycopy(conditionVals, 0, values, 1, conditionVals.length);
+        db.executeUpdate(sql, values);
     }
 
     /**
@@ -38,11 +41,16 @@ public interface Attr {
      * @throws SQLException when unexpected SQL error occurs
      */
     default String inputHasVal() throws SQLException {
-        String sql = "SELECT " + getAttrName() + " FROM " + getTable() + " WHERE " + getAttrName() + " = ?";
+        String[] columns = new String[]{};
+        String conditionClause = getAttrName() + " = ?";
         while (true) {
             String val = getStr(getDescription());
-            try (ResultSet rs = db.executeQuery(sql, val)) {
-                if (rs.next()) return val;
+            String[] conditionVals = new String[]{val};
+            try (ResultSet rs = getTable().query(columns, conditionClause, conditionVals)) {
+                if (rs.next()) {
+                    System.err.println(rs.getString(1));
+                    return val;
+                }
                 View.displayError(getAttrName() + " = " + val + " does not exist");
             }
         }

@@ -1,6 +1,10 @@
 package config;
 
+import exceptions.BMSException;
 import utils.validator.*;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public enum BanquetAttr implements Attr{
     BIN("BIN", "BIN", null),
@@ -31,4 +35,19 @@ public enum BanquetAttr implements Attr{
     @Override public String getDescription() { return description; }
     @Override public Validator getValidator() { return vd;}
     @Override public boolean isUpdatable() { return this != BIN; }
+
+    public static void changeQuota(int delta, String BanquetID) throws SQLException {
+        String[] columns = new String[]{QUOTA.getAttrName()};
+        String conditionClause = BIN.getAttrName() + " = ?";
+        String[] conditionVals = new String[]{BanquetID};
+
+        // SELECT quota FROM Banquet WHERE BIN = BanquetID
+        try (ResultSet rs = Tables.BANQUET.query(columns, conditionClause, conditionVals)) {
+            rs.next();
+            int newQuota = rs.getInt(1) + delta;
+            if (newQuota == 0) AVAILABILITY.updateTo("0", conditionClause, conditionVals);
+            if (newQuota > 0) AVAILABILITY.updateTo("1", conditionClause, conditionVals);
+            QUOTA.updateTo(String.valueOf(newQuota), conditionClause, conditionVals);
+        }
+    }
 }

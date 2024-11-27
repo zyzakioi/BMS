@@ -106,8 +106,9 @@ class UpdateInfo implements Menu {
                 case 2 -> updatePw(ID);
                 case 3, 4, 5, 6, 7, 8 -> {
                     String val = attrs[op].inputNewVal();
-                    String condition = AttendeeAttr.ATT_ID + " = " + ID;
-                    attrs[op].updateTo(val, condition);
+                    String conditionClause = AttendeeAttr.ATT_ID + " = ?";
+                    String[] conditionVals = new String[]{String.valueOf(ID)};
+                    attrs[op].updateTo(val, conditionClause, conditionVals);
                 }
             }
         }
@@ -116,15 +117,17 @@ class UpdateInfo implements Menu {
     private void updateId(int ID) throws SQLException{
         // Assumes CASCADE UPDATE is on
         String newId = AttendeeAttr.EMAIL.inputUniqueVal();
-        String condition = AttendeeAttr.ATT_ID.getAttrName() + " = " + ID;
-        AttendeeAttr.EMAIL.updateTo(newId, condition);
+        String conditionClause = AttendeeAttr.ATT_ID.getAttrName() + " = ?";
+        String[] conditionVals = new String[]{String.valueOf(ID)};
+        AttendeeAttr.EMAIL.updateTo(newId, conditionClause, conditionVals);
     }
 
     private void updatePw(int ID) throws SQLException {
         char[] newPw = getNewPasswd("New password");
-        String condition = AttendeeAttr.ATT_ID.getAttrName() + " = " + ID;
+        String conditionClause = AttendeeAttr.ATT_ID.getAttrName() + " = ?";
+        String[] conditionVals = new String[]{String.valueOf(ID)};
         String hashPw = SecurityUtils.toHash(newPw);
-        AttendeeAttr.PASSWORD.updateTo(hashPw, condition);
+        AttendeeAttr.PASSWORD.updateTo(hashPw, conditionClause, conditionVals);
     }
 }
 
@@ -134,24 +137,28 @@ class SignUp implements Menu {
 
     @Override
     public void start() throws SQLException{
+        // input valid BIN
         String banquetID = BanquetAttr.BIN.inputHasVal();
         try(ResultSet rs = Tables.REGISTRATION.query(new String[]{}, BanquetAttr.BIN.getAttrName() + " = ? AND Att_ID = ?", new String[]{banquetID, Integer.toString(ID)})) {
             if (rs.next()) {
-                View.displayError("Already registered to this banquet");
+                View.displayError("already registered to this banquet");
                 return;
             }
         }
+
+        // check for availability
         String[] columns = new String[]{};
         String[] conditionVals = new String[]{banquetID, "1", "0"};
         String conditionClause = BanquetAttr.BIN + " = ? AND " + BanquetAttr.AVAILABILITY + " = ? AND " + BanquetAttr.QUOTA + " > ?";
         try (ResultSet rs = Tables.BANQUET.query(columns, conditionClause, conditionVals)) {
             if (!rs.next()) {
-                View.displayError("Banquet not available");
+                View.displayError("banquet not available or insufficient quota");
                 return;
             }
         }
         View.displayMessage("Available meals:");
         AdminEditBanquet.showMeals(banquetID);
+
         String mealID = MealAttr.DISH_NAME.inputHasVal();
         conditionVals = new String[]{banquetID, mealID};
         conditionClause = RegistrationAttr.BIN + " = ? AND " + RegistrationAttr.DISH_NAME + " = ?";
@@ -164,19 +171,14 @@ class SignUp implements Menu {
         RegistrationAttr[] otherAttrs = new RegistrationAttr[]{RegistrationAttr.DRINK, RegistrationAttr.SEAT, RegistrationAttr.REMARKS};
         String[] otherVals = Attr.inputNewVals(otherAttrs);
         String[] vals = new String[]{Integer.toString(ID), banquetID, mealID, otherVals[0], otherVals[1], "0", otherVals[2]};
+
         try {
             Tables.REGISTRATION.insert(vals);
-            ResultSet rs = Tables.BANQUET.query(new String[]{"Quota"}, BanquetAttr.BIN.getAttrName() + " = ?", new String[]{banquetID});
-            rs.next();
-            int quota = rs.getInt(1);
-            BanquetAttr.QUOTA.updateTo(quota - 1 + "", BanquetAttr.BIN.getAttrName() + " = " + banquetID);
-            rs = Tables.BANQUET.query(new String[]{"Quota"}, BanquetAttr.BIN.getAttrName() + " = ?", new String[]{banquetID});
-            rs.next();
-            if (rs.getInt(1) == 0) BanquetAttr.AVAILABILITY.updateTo("0", BanquetAttr.BIN.getAttrName() + " = " + banquetID);
-            rs.close();
         } catch (BMSException e) {
-            View.displayError("Already registered to this banquet");
+            // cannot happen, because already checked for not registered BIN
         }
+
+        BanquetAttr.changeQuota(-1, banquetID);
     }
 }
 

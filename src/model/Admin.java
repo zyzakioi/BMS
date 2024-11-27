@@ -12,7 +12,6 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.VerticalAlignment;
-import com.itextpdf.styledxmlparser.jsoup.nodes.Element;
 import config.*;
 import exceptions.BMSException;
 import utils.SecurityUtils;
@@ -34,11 +33,17 @@ public class Admin implements User {
 
     public Admin(String email, char[] passwd) throws BMSException {
         this.passwd = passwd;
-        try(ResultSet rs = Tables.ADMIN.query(new String[]{AdminAttr.ADMIN_ID.getAttrName()}, AdminAttr.EMAIL + " = ?", new String[]{email})) {
-            if (!rs.next()) throw new BMSException("Admin not found");
+
+        String[] columns = new String[]{AdminAttr.ADMIN_ID.getAttrName()};
+        String conditionClause = AdminAttr.EMAIL.getAttrName() + " = ?";
+        String[] conditionVals = new String[]{email};
+
+        System.err.println(email);
+        try(ResultSet rs = Tables.ADMIN.query(columns, conditionClause, conditionVals)) {
+            if (!rs.next()) throw new BMSException("admin not found");
             ID = rs.getInt(1);
         } catch (SQLException e) {
-            throw new BMSException(e.getMessage());
+            throw new RuntimeException(e);
         }
         menu = new AdminMainMenu(ID);
     }
@@ -66,8 +71,8 @@ class AdminMainMenu implements Menu {
     private static final Menu menu2 = new AdminNewBanquet();
     private static final Menu menu3 = new AdminEditBanquet();
     private static final Menu menu4 = new AdminMenuAttendee();
-    static Menu menu5;
-    static Menu menu6;
+    private static Menu menu5;
+    private static Menu menu6;
     private static final Menu menu7 = new NewAdmin();
     private static final Menu menu8 = new GenReport();
 
@@ -162,8 +167,9 @@ class AdminEditBanquet implements Menu {
             if (op == 0) return;
             if (1 <= op && op <= 9) {
                 String val = attrs[op].inputNewVal();
-                String condition = BanquetAttr.BIN + " = " + banquetID;
-                attrs[op].updateTo(val, condition);
+                String conditionClause = BanquetAttr.BIN + " = ?";
+                String[] conditionVals = new String[]{banquetID};
+                attrs[op].updateTo(val, conditionClause, conditionVals);
                 break;
             }
         }
@@ -173,24 +179,33 @@ class AdminEditBanquet implements Menu {
         String mealName = MealAttr.DISH_NAME.inputHasVal();
         MealAttr attr = (MealAttr) Attr.inputValidAttr(sc, MealAttr.values());
 
+        if (attr.equals(MealAttr.DISH_NAME) || attr.equals(MealAttr.BIN)) {
+            View.displayError("meal attribute " + attr.getAttrName() + " not updatable, try: Type, Cuisine, or Price");
+            return;
+        }
+
         String val = attr.inputNewVal();
-        String condition = String.format(
-                "%s = %s AND %s = %s",
-                MealAttr.BIN, banquetID,
-                MealAttr.DISH_NAME, mealName
+        String conditionClause = String.format(
+                "%s = ? AND %s = ?",
+                MealAttr.BIN.getAttrName(),
+                MealAttr.DISH_NAME.getAttrName()
         );
-        MealAttr.DISH_NAME.updateTo(val, condition);
+        String[] conditionVals = new String[]{banquetID, mealName};
+        System.err.println(attr.getAttrName());
+        System.err.println(conditionClause + " | " + Arrays.toString(conditionVals));
+        attr.updateTo(val, conditionClause, conditionVals);
     }
 
     private static void takeAttendance(String banquetID) throws SQLException, BMSException{
         String email = AttendeeAttr.EMAIL.inputHasVal();
         int ID = AttendeeAttr.getID(email);
-        String condition = String.format(
-                "%s = %s AND %s = %d",
-                RegistrationAttr.BIN, banquetID,
-                RegistrationAttr.ATT_ID, ID
+        String conditionClause = String.format(
+                "%s = ? AND %s = ?",
+                RegistrationAttr.BIN.getAttrName(),
+                RegistrationAttr.ATT_ID.getAttrName()
         );
-        RegistrationAttr.ATTENDANCE.updateTo("1", condition);
+        String[] conditionVals = new String[]{banquetID, String.valueOf(ID)};
+        RegistrationAttr.ATTENDANCE.updateTo("1", conditionClause, conditionVals);
     }
 
     public static void showMeals(String banquetID){
@@ -250,36 +265,37 @@ class AdminMenuAttendee implements Menu {
         int ID = AttendeeAttr.getID(email);
         RegistrationAttr attr = (RegistrationAttr) Attr.inputValidAttr(sc, RegistrationAttr.values());
         String newVal = attr.inputNewVal();
-        String condition = String.format(
-                "%s = %s AND %s = %d",
-                RegistrationAttr.BIN, banquetID,
-                RegistrationAttr.ATT_ID, ID
+        String conditionClause = String.format(
+                "%s = ? AND %s = ?",
+                RegistrationAttr.BIN.getAttrName(),
+                RegistrationAttr.ATT_ID.getAttrName()
         );
-        attr.updateTo(newVal, condition);
+        String[] conditionVals = new String[]{banquetID, String.valueOf(ID)};
+        attr.updateTo(newVal, conditionClause, conditionVals);
     }
 
     private static void unregisterAttendee(String banquetID) throws SQLException{
         String email = AttendeeAttr.EMAIL.inputHasVal();
         int ID = AttendeeAttr.getID(email);
-        String conditions = String.format(
-                "%s = %s AND %s = %d",
-                RegistrationAttr.BIN, banquetID,
-                RegistrationAttr.ATT_ID, ID
+        String conditionClause = String.format(
+                "%s = ? AND %s = ?",
+                RegistrationAttr.BIN.getAttrName(),
+                RegistrationAttr.ATT_ID.getAttrName()
         );
-        ResultSet rs = db.executeQuery("SELECT COUNT(*) FROM Registration WHERE " + conditions);
-        rs.next();
-        if (rs.getInt(1) == 0) {
-            View.displayError("Attendee ID \"" + email + "\" is not registered");
-            return;
+        String[] conditionVals = new String[]{banquetID, String.valueOf(ID)};
+        String[] countCol = new String[]{"COUNT(*)"};
+        try (ResultSet rs = Tables.REGISTRATION.query(countCol, conditionClause, conditionVals)){
+            rs.next();
+            if (rs.getInt(1) == 0) {
+                View.displayError("Attendee ID \"" + email + "\" is not registered");
+                return;
+            }
         }
-        Tables.REGISTRATION.delete(conditions);
+        Tables.REGISTRATION.delete(conditionClause, conditionVals);
         View.displayMessage("Attendee ID \"" + email + "\" has been unregistered");
-        rs = Tables.BANQUET.query(new String[]{BanquetAttr.QUOTA.getAttrName()}, BanquetAttr.BIN.getAttrName() + " = ?", new String[]{banquetID});
-        rs.next();
-        int quota = rs.getInt(1);
-        BanquetAttr.QUOTA.updateTo(String.valueOf(quota + 1), BanquetAttr.BIN + " = " + banquetID);
-        if(quota == 0) BanquetAttr.AVAILABILITY.updateTo("1", BanquetAttr.BIN + " = " + banquetID);
-        rs.close();
+
+        // update quota
+        BanquetAttr.changeQuota(1, banquetID);
     }
 
     private static void viewAttendees(String BIN) throws SQLException{
@@ -327,7 +343,7 @@ class AdminViewBanquet implements Menu {
         // Relationship Mapping of Banquet:
         // Banquet (Bin, Name, Address, Location, Availability, ContactLastName, ContactFirstName, Quota, Time)
 
-        String[] header = {"BIN","Name","Date","Time"};
+        String[] header = {"BIN", "Name", "Date", "Time", "Location", "Address", "First Name", "Last Name", "Availability", "Quota"};
         ArrayList<String[]> rows = new ArrayList<>();
         int colNum = header.length;
 
@@ -350,26 +366,27 @@ class AdminViewBanquet implements Menu {
 }
 
 class UpdateEmail implements Menu {
-    private static int ID;
-    UpdateEmail(int ID) {
-        UpdateEmail.ID = ID;
-    }
+    private final int ID;
+    UpdateEmail(int ID) { this.ID = ID;}
     public void start() throws SQLException {
         String newEmail = AdminAttr.EMAIL.inputUniqueVal();
-        AdminAttr.EMAIL.updateTo(newEmail, AdminAttr.ADMIN_ID.getAttrName() + " = " + ID);
+        String conditionClause = AdminAttr.ADMIN_ID.getAttrName() + " = ?";
+        String[] conditionVals = new String[]{String.valueOf(ID)};
+        AdminAttr.EMAIL.updateTo(newEmail, conditionClause, conditionVals);
     }
 }
 
 class UpdatePassword implements Menu {
-    private static int ID;
+    private final int ID;
     UpdatePassword(int ID) {
-        UpdatePassword.ID = ID;
+        this.ID = ID;
     }
     public void start() throws SQLException {
         char[] newPw = getNewPasswd("New Password");
-        String condition = AdminAttr.ADMIN_ID + " = " + ID;
+        String conditionClause = AdminAttr.ADMIN_ID + " = ?";
+        String[] conditionVals = new String[]{String.valueOf(ID)};
         String hashPw = SecurityUtils.toHash(newPw);
-        AdminAttr.PASSWORD.updateTo(hashPw, condition);
+        AdminAttr.PASSWORD.updateTo(hashPw, conditionClause, conditionVals);
     }
 }
 

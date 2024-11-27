@@ -35,6 +35,7 @@ public enum Tables {
     public ResultSet query(String[] columns, String conditionClause, String[] conditionVals) throws SQLException {
         StringBuilder sql = new StringBuilder();
         // else sql = "SELECT" + " ?".repeat(columns.length) + " FROM " + tableName;
+
         if (columns.length == 0) sql.append("SELECT *");
         else {
             sql.append("SELECT ");
@@ -50,12 +51,14 @@ public enum Tables {
 
     /**
      * Deletes entries from <code>this</code> table based on <code>conditions</code>
-     * @param conditions the String condition in the format of (? = ? AND ? = ? ...)
+     *
+     * @param conditionClause the String condition in the format of (? = ? AND ? = ? ...)
+     * @param conditionVals the values to fill in the conditionClause
      * @throws SQLException when unexpected SQL exception occurred
      */
-    public void delete(String conditions) throws SQLException {
+    public void delete(String conditionClause, String[] conditionVals) throws SQLException {
         String sql = "DELETE FROM " + tableName;
-        if (!conditions.isEmpty()) sql += " WHERE " + conditions;
+        if (!conditionClause.isEmpty()) sql += " WHERE " + conditionClause;
         db.executeUpdate(sql, new String[]{});
     }
 
