@@ -22,8 +22,7 @@ public class DateValidator implements Validator {
         if (str == null) return false;
         try {
             LocalDate date = LocalDate.parse(str, DATE_FORMATTER);
-            return (date.isEqual(LOWER_BOUND) || date.isAfter(LOWER_BOUND)) &&
-                    date.isBefore(UPPER_BOUND);
+            return date.isEqual(LOWER_BOUND) || date.isEqual(UPPER_BOUND) || date.isAfter(LOWER_BOUND) && date.isBefore(UPPER_BOUND);
         } catch (DateTimeParseException e) {
             return false;
         }

@@ -3,8 +3,10 @@ package controller;
 import service.*;
 import exceptions.BMSException;
 import utils.SecurityUtils;
+import utils.validator.DateValidator;
 import view.View;
 
+import javax.xml.crypto.Data;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -42,12 +44,13 @@ public class Attendee implements User {
 }
 
 class AttendeeMainMenu implements Menu {
-    static Menu menu1, menu2, menu3;
+    static Menu menu1, menu2, menu3, menu4;
 
     AttendeeMainMenu(int ID) {
         menu1 = new AttendeeUpdateInfo(ID);
         menu2 = new AttendeeShowBanquets(ID);
         menu3 = new AttendeeSignUp(ID);
+        menu4 = new AttendeeSearch(ID);
     }
 
 
@@ -57,6 +60,7 @@ class AttendeeMainMenu implements Menu {
                 1. Update Personal Info
                 2. Show Available Banquets
                 3. Register a Banquet
+                4. Search Registration
                 0. Logout
                 """;
         boolean isRunning = true;
@@ -67,6 +71,7 @@ class AttendeeMainMenu implements Menu {
                 case 1 -> menu1.start();
                 case 2 -> menu2.start();
                 case 3 -> menu3.start();
+                case 4 -> menu4.start();
                 case 0 -> isRunning = false;
                 default -> View.displayBadInput("{1, 2, 3, 0}", op);
             }
@@ -206,5 +211,73 @@ class AttendeeShowBanquets implements Menu {
             else View.displayTable(header, rows);
         }
 
+    }
+}
+
+class AttendeeSearch implements Menu{
+    private final int ID;
+    AttendeeSearch(int ID) {this.ID = ID;}
+
+    @Override
+    public void start() throws SQLException {
+        String criteria = getStr("Select criteria to search by(Date or Name)");
+        String val1 = "",val2 = "";
+        switch (criteria) {
+            case "Date" -> {
+                val1 = getStr("Enter start date(yyyy-mm-dd)");
+                if(!new DateValidator().eval(val1)){
+                    View.displayError("Invalid date");
+                    return;
+                }
+                val2 = getStr("Enter end date(yyyy-mm-dd)");
+                if(!new DateValidator().eval(val2)){
+                    View.displayError("Invalid date");
+                    return;
+                }
+            }
+            case "Name" -> {
+                val1 = getStr("Name contains");
+                val2 = "";
+            }
+        }
+        String[] headers = Attr.getDescriptions(RegistrationAttr.values());
+        headers = Arrays.copyOfRange(headers, 1, headers.length);
+        ArrayList<String[]> rows = new ArrayList<>();
+        int colNum = headers.length;
+        String[] columns = Attr.getColumns(RegistrationAttr.values());
+        columns = Arrays.copyOfRange(columns, 1, columns.length);
+        String conditionClause = RegistrationAttr.ATT_ID.getAttrName() + " = ?";
+        String[] conditionVals = new String[]{Integer.toString(ID)};
+        try (ResultSet rs = Tables.REGISTRATION.query(columns, conditionClause, conditionVals)) {
+            while (rs.next()) {
+                String[] row = new String[colNum];
+                for (int i = 0; i < colNum; i++)
+                    row[i] = rs.getString(i + 1);
+                switch(criteria){
+                    case "Date" -> {
+                        try(ResultSet trs = Tables.BANQUET.query(new String[]{BanquetAttr.DATE.getAttrName()}, BanquetAttr.BIN.getAttrName() + " = ?", new String[]{row[0]})) {
+                            if (trs.next()) {
+                                String date = trs.getString(1);
+                                if (date.compareTo(val1) < 0 || date.compareTo(val2) > 0)
+                                    continue;
+                            }
+                        }
+                    }
+                    case "Name" -> {
+                        try(ResultSet trs = Tables.BANQUET.query(new String[]{BanquetAttr.BANQUET_NAME.getAttrName()}, BanquetAttr.BIN.getAttrName() + " = ?", new String[]{row[0]})) {
+                            if (trs.next()) {
+                                String name = trs.getString(1);
+                                if (!name.contains(val1))
+                                    continue;
+                            }
+                        }
+                    }
+                }
+                rows.add(row);
+            }
+            if (rows.isEmpty())
+                View.displayMessage("No registrations found");
+            else View.displayTable(headers, rows);
+        }
     }
 }
