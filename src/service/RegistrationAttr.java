@@ -39,45 +39,4 @@ public enum RegistrationAttr implements Attr {
     @Override public String getDescription() { return description; }
     @Override public Validator getValidator() { return vd; }
     @Override public boolean isUpdatable() { return this != ATT_ID && this != BIN && this != DISH_NAME;}
-
-    /*
-    public static void showRegistration(String banquetID) throws SQLException {
-        // first get the attendee IDs
-        String[] columns = new String[]{ATT_ID.getAttrName()};
-        String conditionClause = BIN.getAttrName() + " = ?";
-        String[] conditionVals = new String[]{banquetID};
-
-        ArrayList<Integer> attIds = new ArrayList<>();
-        try (ResultSet rs = Tables.REGISTRATION.query(columns, conditionClause, conditionVals)){
-            while (rs.next()) {
-                attIds.add(rs.getInt(1));
-            }
-        }
-
-        // print table showing the attendee infos
-        String[] header = new String[]{
-                AttendeeAttr.ATT_ID.getAttrName(),
-                AttendeeAttr.EMAIL.getAttrName(),
-                AttendeeAttr.FIRST_NAME.getAttrName(),
-                AttendeeAttr.LAST_NAME.getAttrName(),
-                AttendeeAttr.ORGANIZATION.getAttrName(),
-                AttendeeAttr.ATTENDEE_TYPE.getAttrName(),
-        };
-        ArrayList<String[]> rows = new ArrayList<>();
-        for (Integer attId: attIds) {
-            columns = new String[]{};
-            conditionClause = BIN.getAttrName() + " = ?";
-            conditionVals = new String[]{banquetID};
-            try (ResultSet rs = Tables.ATTENDEE.query(columns, conditionClause, conditionVals)) {
-                rs.next();
-                String[] tmpRow = new String[header.length];
-                for (int i = 0; i < header.length; i++) {
-                    tmpRow[i] = rs.getString(header[i]);
-                }
-                rows.add(tmpRow);
-            }
-        }
-        View.displayTable(header, rows);
-    }
-     */
 }

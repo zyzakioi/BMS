@@ -43,9 +43,9 @@ public class Controller {
             View.displayOptions("Account Type", options);
             int op = getDigit("");
             switch (op) {
-                case 1 -> initAttendee();
-                case 2 -> initAdmin();
-                case 3 -> initRegister();
+                case 1 -> loginAttendee();
+                case 2 -> loginAdmin();
+                case 3 -> registerAttendee();
                 case 4 -> {
                     db.close();
                     View.displayExit();
@@ -56,7 +56,7 @@ public class Controller {
         }
     }
 
-    private void initAttendee() throws SQLException{
+    private void loginAttendee() throws SQLException{
         while (true) {
             String email = getStr("[Attendee] Email");
             char[] password = getPasswd("[Attendee] Password");
@@ -69,7 +69,7 @@ public class Controller {
         }
     }
 
-    private void initAdmin() throws SQLException{
+    private void loginAdmin() throws SQLException{
         while (true) {
             String email = getStr("[Admin] Email");
             char[] password = getPasswd("[Admin] Password");
@@ -82,7 +82,7 @@ public class Controller {
         }
     }
 
-    private void initRegister() throws SQLException{
+    private void registerAttendee() throws SQLException{
         Attr ID = AttendeeAttr.EMAIL;
         String[] finalVals = new String[9];
         finalVals[1] = ID.inputUniqueVal();
