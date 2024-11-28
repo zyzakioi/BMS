@@ -5,7 +5,7 @@ import utils.validator.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static control.Controller.db;
+import static controller.Controller.db;
 
 public enum AttendeeAttr implements Attr{
     ATT_ID("Att_ID", "Attendee ID", null),

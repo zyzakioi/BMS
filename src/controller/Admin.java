@@ -1,4 +1,4 @@
-package model;
+package controller;
 
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.font.PdfFont;
@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static control.Controller.*;
+import static controller.Controller.*;
 import static utils.InputUtils.*;
 
 public class Admin implements User {

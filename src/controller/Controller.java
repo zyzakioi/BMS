@@ -1,11 +1,10 @@
-package control;
+package controller;
 
+import service.DBConnect;
 import service.AttendeeAttr;
 import service.Attr;
 import service.Tables;
 import exceptions.BMSException;
-import model.Admin;
-import model.Attendee;
 import utils.SecurityUtils;
 import view.View;
 

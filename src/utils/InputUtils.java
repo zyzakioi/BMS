@@ -4,7 +4,7 @@ import view.View;
 
 import java.io.Console;
 
-import static control.Controller.sc;
+import static controller.Controller.sc;
 
 public class InputUtils {
     /**

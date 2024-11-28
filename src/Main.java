@@ -1,4 +1,4 @@
-import control.Controller;
+import controller.Controller;
 
 import java.sql.SQLException;
 

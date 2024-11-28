@@ -1,4 +1,4 @@
-package control;
+package service;
 
 import java.sql.*;
 
@@ -14,7 +14,7 @@ public class DBConnect {
     //private final static String passwd = "oracledb";
     private static SQLiteConnection connection = null;
 
-    DBConnect(String url) {
+    public DBConnect(String url) {
         try {
             connection = (SQLiteConnection) DriverManager.getConnection(url);
             System.out.println("Connected.");

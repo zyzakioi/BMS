@@ -5,7 +5,7 @@ import exceptions.BMSException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static control.Controller.db;
+import static controller.Controller.db;
 
 public enum Tables {
     ATTENDEE("Attendee", AttendeeAttr.class),

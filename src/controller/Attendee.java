@@ -1,4 +1,4 @@
-package model;
+package controller;
 
 import service.*;
 import exceptions.BMSException;

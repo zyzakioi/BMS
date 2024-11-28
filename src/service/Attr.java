@@ -1,6 +1,6 @@
 package service;
 
-import control.Controller;
+import controller.Controller;
 import utils.validator.Validator;
 import view.View;
 
@@ -8,7 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Scanner;
 
-import static control.Controller.db;
+import static controller.Controller.db;
 import static utils.InputUtils.getStr;
 
 public interface Attr {
