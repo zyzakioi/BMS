@@ -1,4 +1,4 @@
-package config;
+package service;
 
 import control.Controller;
 import utils.validator.Validator;
@@ -48,7 +48,6 @@ public interface Attr {
             String[] conditionVals = new String[]{val};
             try (ResultSet rs = getTable().query(columns, conditionClause, conditionVals)) {
                 if (rs.next()) {
-                    System.err.println(rs.getString(1));
                     return val;
                 }
                 View.displayError(getAttrName() + " = " + val + " does not exist");

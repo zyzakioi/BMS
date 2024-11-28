@@ -1,6 +1,6 @@
 package model;
 
-import config.*;
+import service.*;
 import exceptions.BMSException;
 import utils.SecurityUtils;
 import view.View;
@@ -45,9 +45,9 @@ class AttendeeMainMenu implements Menu {
     static Menu menu1, menu2, menu3;
 
     AttendeeMainMenu(int ID) {
-        menu1 = new UpdateInfo(ID);
-        menu2 = new ShowBanquets(ID);
-        menu3 = new SignUp(ID);
+        menu1 = new AttendeeUpdateInfo(ID);
+        menu2 = new AttendeeShowBanquets(ID);
+        menu3 = new AttendeeSignUp(ID);
     }
 
 
@@ -75,10 +75,10 @@ class AttendeeMainMenu implements Menu {
     }
 }
 
-class UpdateInfo implements Menu {
+class AttendeeUpdateInfo implements Menu {
     private final int ID;
 
-    UpdateInfo(int ID) {
+    AttendeeUpdateInfo(int ID) {
         this.ID = ID;
     }
 
@@ -131,9 +131,9 @@ class UpdateInfo implements Menu {
     }
 }
 
-class SignUp implements Menu {
+class AttendeeSignUp implements Menu {
     private final int ID;
-    SignUp(int ID) {this.ID = ID;}
+    AttendeeSignUp(int ID) {this.ID = ID;}
 
     @Override
     public void start() throws SQLException{
@@ -182,9 +182,9 @@ class SignUp implements Menu {
     }
 }
 
-class ShowBanquets implements Menu {
+class AttendeeShowBanquets implements Menu {
     private final int ID;
-    ShowBanquets(int ID) {this.ID = ID;}
+    AttendeeShowBanquets(int ID) {this.ID = ID;}
     public void start() throws SQLException {
         String[] header = {"BIN","Name","Date","Time"};
         ArrayList<String[]> rows = new ArrayList<>();

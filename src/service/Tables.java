@@ -1,4 +1,4 @@
-package config;
+package service;
 
 import exceptions.BMSException;
 
@@ -40,7 +40,9 @@ public enum Tables {
         else {
             sql.append("SELECT ");
             for (int i = 0; i < columns.length; i++) {
-                sql.append(columns[i]).append(" AS ").append(columns[i]);
+                sql.append(columns[i]);
+                if (!columns[i].equals("COUNT(*)"))
+                    sql.append(" AS ").append(columns[i]);
                 if (i < columns.length - 1) sql.append(", ");
             }
         }

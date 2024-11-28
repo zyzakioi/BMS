@@ -1,4 +1,4 @@
-package config;
+package service;
 
 import utils.validator.NameValidator;
 import utils.validator.*;

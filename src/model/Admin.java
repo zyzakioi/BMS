@@ -12,7 +12,7 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.VerticalAlignment;
-import config.*;
+import service.*;
 import exceptions.BMSException;
 import utils.SecurityUtils;
 import view.View;
@@ -38,7 +38,6 @@ public class Admin implements User {
         String conditionClause = AdminAttr.EMAIL.getAttrName() + " = ?";
         String[] conditionVals = new String[]{email};
 
-        System.err.println(email);
         try(ResultSet rs = Tables.ADMIN.query(columns, conditionClause, conditionVals)) {
             if (!rs.next()) throw new BMSException("admin not found");
             ID = rs.getInt(1);
@@ -74,7 +73,7 @@ class AdminMainMenu implements Menu {
     private static Menu menu5;
     private static Menu menu6;
     private static final Menu menu7 = new NewAdmin();
-    private static final Menu menu8 = new GenReport();
+    private static final Menu menu8 = new AdminGenReport();
 
     AdminMainMenu(int ID) {
         menu5 = new UpdateEmail(ID);
@@ -191,8 +190,6 @@ class AdminEditBanquet implements Menu {
                 MealAttr.DISH_NAME.getAttrName()
         );
         String[] conditionVals = new String[]{banquetID, mealName};
-        System.err.println(attr.getAttrName());
-        System.err.println(conditionClause + " | " + Arrays.toString(conditionVals));
         attr.updateTo(val, conditionClause, conditionVals);
     }
 
@@ -404,7 +401,7 @@ class NewAdmin implements Menu {
     }
 }
 
-class GenReport implements Menu {
+class AdminGenReport implements Menu {
     Document document = null;
     public void start(){
         String file_name = getStr("Input the name of the report file");

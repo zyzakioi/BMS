@@ -1,8 +1,8 @@
 package control;
 
-import config.AttendeeAttr;
-import config.Attr;
-import config.Tables;
+import service.AttendeeAttr;
+import service.Attr;
+import service.Tables;
 import exceptions.BMSException;
 import model.Admin;
 import model.Attendee;

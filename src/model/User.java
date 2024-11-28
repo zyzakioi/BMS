@@ -1,7 +1,7 @@
 package model;
 
-import config.Attr;
-import config.Tables;
+import service.Attr;
+import service.Tables;
 import exceptions.BMSException;
 import utils.SecurityUtils;
 
