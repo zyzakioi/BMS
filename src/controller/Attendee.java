@@ -221,7 +221,7 @@ class AttendeeSearch implements Menu{
     @Override
     public void start() throws SQLException {
         String criteria = getStr("Select criteria to search by(Date or Name)");
-        String val1 = "",val2 = "";
+        String val1, val2;
         switch (criteria) {
             case "Date" -> {
                 val1 = getStr("Enter start date(yyyy-mm-dd)");
@@ -238,6 +238,10 @@ class AttendeeSearch implements Menu{
             case "Name" -> {
                 val1 = getStr("Name contains");
                 val2 = "";
+            }
+            default -> {
+                View.displayBadInput("Date or Name", criteria);
+                return;
             }
         }
         String[] headers = Attr.getDescriptions(RegistrationAttr.values());

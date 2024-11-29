@@ -169,6 +169,9 @@ class AdminEditBanquet implements Menu {
                 String conditionClause = BanquetAttr.BIN + " = ?";
                 String[] conditionVals = new String[]{banquetID};
                 attrs[op].updateTo(val, conditionClause, conditionVals);
+                if (op == 9 && Integer.parseInt(val) <= 0) {
+                    BanquetAttr.AVAILABILITY.updateTo(String.valueOf(0), conditionClause, conditionVals);
+                }
                 break;
             }
         }
