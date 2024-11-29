@@ -220,7 +220,7 @@ class AttendeeSearch implements Menu{
 
     @Override
     public void start() throws SQLException {
-        String criteria = getStr("Select criteria to search by(Date or Name)");
+        String criteria = getStr("criteria to search by(Date or Name)");
         String val1 = "",val2 = "";
         switch (criteria) {
             case "Date" -> {
@@ -236,12 +236,13 @@ class AttendeeSearch implements Menu{
                 }
             }
             case "Name" -> {
-                val1 = getStr("Name contains");
+                val1 = getStr("a part of the banquet name");
                 val2 = "";
             }
         }
         String[] headers = Attr.getDescriptions(RegistrationAttr.values());
         headers = Arrays.copyOfRange(headers, 1, headers.length);
+
         ArrayList<String[]> rows = new ArrayList<>();
         int colNum = headers.length;
         String[] columns = Attr.getColumns(RegistrationAttr.values());
