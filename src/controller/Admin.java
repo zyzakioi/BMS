@@ -492,14 +492,14 @@ class AdminGenReport implements Menu {
             }
             String bestMeal = meals[0];
             int bestNum;
-            try{
-                ResultSet rs = db.executeQuery("SELECT COUNT(*) FROM Registration WHERE BIN = " + i + " AND Dish_name = \"" + meals[0] + "\"");
+            try(ResultSet rs = db.executeQuery("SELECT COUNT(*) FROM Registration WHERE BIN = " + i + " AND Dish_name = \"" + meals[0] + "\"")){
                 rs.next();
                 bestNum = rs.getInt(1);
                 cnt[0] = bestNum;
-                rs = db.executeQuery("SELECT Price FROM Meal WHERE BIN = " + i + " AND Dish_name = \"" + meals[0] + "\"");
-                rs.next();
-                prices[0] = rs.getInt(1);
+                try (ResultSet trs = db.executeQuery("SELECT Price FROM Meal WHERE BIN = " + i + " AND Dish_name = \"" + meals[0] + "\"")){
+                    trs.next();
+                    prices[0] = trs.getInt(1);
+                }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -600,8 +600,7 @@ class AdminGenReport implements Menu {
                 throw new RuntimeException(e);
             }
             table.addCell(new Cell().add(new Paragraph(favMeal)).setTextAlignment(TextAlignment.CENTER));
-            try{
-                ResultSet rs = db.executeQuery("SELECT BIN,Dish_name FROM Registration WHERE Att_ID = " + i);
+            try(ResultSet rs = db.executeQuery("SELECT BIN,Dish_name FROM Registration WHERE Att_ID = " + i)){
                 int total = 0;
                 while(rs.next()){
                     int BIN = rs.getInt(1);
