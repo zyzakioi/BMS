@@ -327,6 +327,11 @@ class AdminNewBanquet implements Menu {
     public void start() throws SQLException{
         try {
             String[] vals = Attr.inputNewVals(BanquetAttr.values());
+            // val[9] Quota / val[8] Availability
+            if (vals[9].equals("0") && vals[8].equals("1")){
+                View.displayBadInput("Availability = 0 when Quota = 0", "Availability = 1");
+                return;
+            }
             String[][] mealSet = MealAttr.getValidMealSet(vals[0]);
             Tables.BANQUET.insert(vals);
             for (String[] meal : mealSet) Tables.MEAL.insert(meal);

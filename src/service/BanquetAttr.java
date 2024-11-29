@@ -15,7 +15,7 @@ public enum BanquetAttr implements Attr{
     CONTACT_FIRST_NAME("First_name", "First name", new NameValidator()),
     CONTACT_LAST_NAME("Last_name", "Last name", new NameValidator()),
     AVAILABILITY("Availability", "Availability (0/1)", new BoolValidator()),
-    QUOTA("Quota", "Quota", new QuotaValidator());
+    QUOTA("Quota", "Quota", new IntValidator());
 
     private final String attrName;
     private final String description;
