@@ -94,6 +94,16 @@ public interface Attr {
         }
     }
 
+    default String inputNewVal(String customMessage) {
+        Validator vd = getValidator();
+        while (true) {
+            String input = getStr(customMessage);
+            assert vd != null;
+            if (vd.eval(input)) return input;
+            else View.displayError(vd.reason());
+        }
+    }
+
     /**
      * Takes an array of Attr we wish to prompt the user to enter.
      * The method ensures that it repeatedly prompts the user until a valid input for each attribute is entered.

@@ -3,10 +3,8 @@ package controller;
 import service.*;
 import exceptions.BMSException;
 import utils.SecurityUtils;
-import utils.validator.DateValidator;
 import view.View;
 
-import javax.xml.crypto.Data;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -220,20 +218,12 @@ class AttendeeSearch implements Menu{
 
     @Override
     public void start() throws SQLException {
-        String criteria = getStr("Select criteria to search by(Date or Name)");
+        String criteria = getStr("Select criteria to search by (Date or Name)");
         String val1, val2;
         switch (criteria) {
             case "Date" -> {
-                val1 = getStr("Enter start date(yyyy-mm-dd)");
-                if(!new DateValidator().eval(val1)){
-                    View.displayError("Invalid date");
-                    return;
-                }
-                val2 = getStr("Enter end date(yyyy-mm-dd)");
-                if(!new DateValidator().eval(val2)){
-                    View.displayError("Invalid date");
-                    return;
-                }
+                val1 = BanquetAttr.DATE.inputNewVal("start date");
+                val2 = BanquetAttr.DATE.inputNewVal("end date");
             }
             case "Name" -> {
                 val1 = getStr("a part of the banquet name");
