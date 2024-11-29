@@ -236,7 +236,7 @@ class AttendeeSearch implements Menu{
                 }
             }
             case "Name" -> {
-                val1 = getStr("Name contains");
+                val1 = getStr("a part of the banquet name");
                 val2 = "";
             }
             default -> {
@@ -246,6 +246,7 @@ class AttendeeSearch implements Menu{
         }
         String[] headers = Attr.getDescriptions(RegistrationAttr.values());
         headers = Arrays.copyOfRange(headers, 1, headers.length);
+
         ArrayList<String[]> rows = new ArrayList<>();
         int colNum = headers.length;
         String[] columns = Attr.getColumns(RegistrationAttr.values());
