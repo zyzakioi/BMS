@@ -476,7 +476,7 @@ class AdminGenReport implements Menu {
                 throw new RuntimeException(e);
             }
             table.addCell(new Cell().add(new Paragraph(name)).setTextAlignment(TextAlignment.CENTER));
-            table.addCell(new Cell().add(new Paragraph(attNum + " / " + quota)).setTextAlignment(TextAlignment.CENTER));
+            table.addCell(new Cell().add(new Paragraph(regNum + " / " + (quota + regNum))).setTextAlignment(TextAlignment.CENTER));
             table.addCell(new Cell().add(new Paragraph(attNum + " / " + regNum)).setTextAlignment(TextAlignment.CENTER));
             String[] meals = new String[4];
             int[] prices = new int[4], cnt = new int[4];
